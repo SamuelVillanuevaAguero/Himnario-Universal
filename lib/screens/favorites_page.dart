@@ -95,11 +95,6 @@ class _FavoritesPageState extends State<FavoritesPage> {
   }
 
   String? _findAudioPath(int hymnNumber, String hymnTitle) {
-    String cleanTitle = hymnTitle
-        .toLowerCase()
-        .replaceAll(RegExp(r'[^\w\s]'), '')
-        .replaceAll(' ', '_');
-
     for (String availableAudio in _availableAudios) {
       if (availableAudio.startsWith('$hymnNumber') || 
           availableAudio.startsWith(hymnNumber.toString().padLeft(3, '0'))) {
@@ -196,21 +191,24 @@ class _FavoritesPageState extends State<FavoritesPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Detectar si está en modo oscuro
+    bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
     return Scaffold(
-      backgroundColor: AppColors.backgroundPrimary,
+      backgroundColor: isDarkMode ? AppColors.backgroundDark : AppColors.backgroundPrimary,
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(),
+            _buildHeader(isDarkMode),
             SizedBox(height: 20),
-            Expanded(child: _buildContent()),
+            Expanded(child: _buildContent(isDarkMode)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(bool isDarkMode) {
     return Container(
       padding: EdgeInsets.all(20),
       child: Row(
@@ -225,7 +223,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
             'Mis Favoritos',
             style: TextStyle(
               fontSize: 24,
-              color: AppColors.textPrimary,
+              color: isDarkMode ? AppColors.textWhite : AppColors.textPrimary,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -251,30 +249,32 @@ class _FavoritesPageState extends State<FavoritesPage> {
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(bool isDarkMode) {
     if (_isLoading) {
-      return _buildLoadingState();
+      return _buildLoadingState(isDarkMode);
     }
 
     if (_favoriteHymns.isEmpty) {
-      return _buildEmptyState();
+      return _buildEmptyState(isDarkMode);
     }
 
-    return _buildFavoritesList();
+    return _buildFavoritesList(isDarkMode);
   }
 
-  Widget _buildLoadingState() {
+  Widget _buildLoadingState(bool isDarkMode) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(color: AppColors.primary),
+          CircularProgressIndicator(
+            color: isDarkMode ? AppColors.primaryLight : AppColors.primary,
+          ),
           SizedBox(height: 16),
           Text(
             'Cargando favoritos...',
             style: TextStyle(
               fontSize: 16,
-              color: AppColors.textSecondary,
+              color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary,
             ),
           ),
         ],
@@ -282,7 +282,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(bool isDarkMode) {
     return Center(
       child: Padding(
         padding: EdgeInsets.all(32),
@@ -292,14 +292,14 @@ class _FavoritesPageState extends State<FavoritesPage> {
             Icon(
               Icons.favorite_border,
               size: 64,
-              color: AppColors.textSecondary.withOpacity(0.5),
+              color: (isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary).withOpacity(0.5),
             ),
             SizedBox(height: 24),
             Text(
               'No tienes himnos favoritos',
               style: TextStyle(
                 fontSize: 20,
-                color: AppColors.textPrimary,
+                color: isDarkMode ? AppColors.textWhite : AppColors.textPrimary,
                 fontWeight: FontWeight.w500,
               ),
               textAlign: TextAlign.center,
@@ -309,7 +309,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
               'Marca tus himnos favoritos desde la\nlista principal para verlos aquí',
               style: TextStyle(
                 fontSize: 16,
-                color: AppColors.textSecondary,
+                color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary,
                 height: 1.4,
               ),
               textAlign: TextAlign.center,
@@ -351,13 +351,13 @@ class _FavoritesPageState extends State<FavoritesPage> {
     );
   }
 
-  Widget _buildFavoritesList() {
+  Widget _buildFavoritesList(bool isDarkMode) {
     return ListView.separated(
       padding: EdgeInsets.symmetric(horizontal: 20),
       itemCount: _favoriteHymns.length,
       separatorBuilder: (context, index) => Divider(
         height: 1,
-        color: AppColors.divider,
+        color: isDarkMode ? AppColors.borderDark : AppColors.divider,
       ),
       itemBuilder: (context, index) {
         final hymn = _favoriteHymns[index];
@@ -373,7 +373,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                   hymn.number.toString(),
                   style: TextStyle(
                     fontSize: 16,
-                    color: AppColors.textSecondary,
+                    color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -382,7 +382,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                   Icon(
                     Icons.music_note,
                     size: 16,
-                    color: AppColors.primary,
+                    color: isDarkMode ? AppColors.primaryLight : AppColors.primary,
                   ),
                 ],
               ],
@@ -393,7 +393,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w500,
-              color: AppColors.textPrimary,
+              color: isDarkMode ? AppColors.textWhite : AppColors.textPrimary,
             ),
           ),
           subtitle: Row(
@@ -402,7 +402,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                 hymn.type,
                 style: TextStyle(
                   fontSize: 14,
-                  color: AppColors.textSecondary,
+                  color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary,
                 ),
               ),
               if (hymn.audioPath != null) ...[
@@ -410,14 +410,14 @@ class _FavoritesPageState extends State<FavoritesPage> {
                 Icon(
                   Icons.headphones,
                   size: 14,
-                  color: AppColors.primary,
+                  color: isDarkMode ? AppColors.primaryLight : AppColors.primary,
                 ),
                 SizedBox(width: 4),
                 Text(
                   'Audio disponible',
                   style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.primary,
+                    color: isDarkMode ? AppColors.primaryLight : AppColors.primary,
                     fontWeight: FontWeight.w500,
                   ),
                 ),

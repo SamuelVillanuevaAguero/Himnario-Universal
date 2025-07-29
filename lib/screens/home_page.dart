@@ -224,7 +224,7 @@ class _HimnarioHomePageState extends State<HimnarioHomePage> with AutomaticKeepA
   }
 
   String _removeDiacritics(String str) {
-    var withDia = 'ÀÁÂÃÄÅàáâãäåÒÓÔÕÕÖØòóôõöøÈÉÊËèéêëðÇçÐÌÍÎÏìíîïÙÚÛÜùúûüÑñŠšŸÿýŽž';
+    var withDia = 'ÀÁÂÃÄÅàáâãäåÒÓÔÕÕÖØòóôõöøÈÉÊËèéêëðÇçÐÌÍÎÏìíîïÙÚÛÜùúûüÑñŠšŸÿýŽz';
     var withoutDia = 'AAAAAAaaaaaaOOOOOOOooooooEEEEeeeeeCcDIIIIiiiiUUUUuuuuNnSsYyyZz'; 
 
     for (int i = 0; i < withDia.length; i++) {
@@ -295,16 +295,34 @@ class _HimnarioHomePageState extends State<HimnarioHomePage> with AutomaticKeepA
   }
 
   void _showErrorDialog(String message) {
+    bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Error'),
-          content: Text(message),
+          backgroundColor: isDarkMode ? AppColors.backgroundCard : AppColors.backgroundSecondary,
+          title: Text(
+            'Error',
+            style: TextStyle(
+              color: isDarkMode ? AppColors.textWhite : AppColors.textPrimary,
+            ),
+          ),
+          content: Text(
+            message,
+            style: TextStyle(
+              color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary,
+            ),
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('OK'),
+              child: Text(
+                'OK',
+                style: TextStyle(
+                  color: isDarkMode ? AppColors.primaryLight : AppColors.primary,
+                ),
+              ),
             ),
           ],
         );
@@ -349,30 +367,33 @@ class _HimnarioHomePageState extends State<HimnarioHomePage> with AutomaticKeepA
   Widget build(BuildContext context) {
     super.build(context); // Required for AutomaticKeepAliveClientMixin
     
+    // Detectar si está en modo oscuro
+    bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
     return Scaffold(
-      backgroundColor: AppColors.backgroundPrimary,
+      backgroundColor: isDarkMode ? AppColors.backgroundDark : AppColors.backgroundPrimary,
       body: SafeArea(
         child: Column(
           children: [
             ImageCarousel(images: _carouselImages),
-            _buildTitle(),
-            _buildSearchBar(),
+            _buildTitle(isDarkMode),
+            _buildSearchBar(isDarkMode),
             SizedBox(height: 20),
-            _buildHymnsList(),
+            _buildHymnsList(isDarkMode),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildTitle() {
+  Widget _buildTitle(bool isDarkMode) {
     return Container(
       padding: EdgeInsets.all(20),
       child: Row(
         children: [
           Icon(
             Icons.home,
-            color: AppColors.primary,
+            color: isDarkMode ? AppColors.primaryLight : AppColors.primary,
             size: 28,
           ),
           SizedBox(width: 12),
@@ -380,7 +401,7 @@ class _HimnarioHomePageState extends State<HimnarioHomePage> with AutomaticKeepA
             'Himnos | Universal',
             style: TextStyle(
               fontSize: 24,
-              color: AppColors.textPrimary,
+              color: isDarkMode ? AppColors.textWhite : AppColors.textPrimary,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -389,18 +410,24 @@ class _HimnarioHomePageState extends State<HimnarioHomePage> with AutomaticKeepA
     );
   }
 
-  Widget _buildSearchBar() {
+  Widget _buildSearchBar(bool isDarkMode) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
-        color: AppColors.backgroundSecondary,
+        color: isDarkMode ? AppColors.backgroundCard : AppColors.backgroundSecondary,
         borderRadius: BorderRadius.circular(25),
-        border: Border.all(color: AppColors.divider),
+        border: Border.all(
+          color: isDarkMode ? AppColors.borderDark : AppColors.divider,
+        ),
       ),
       child: Row(
         children: [
           SizedBox(width: 15),
-          Icon(Icons.search, color: AppColors.textSecondary, size: 20),
+          Icon(
+            Icons.search, 
+            color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary, 
+            size: 20,
+          ),
           SizedBox(width: 10),
           Expanded(
             child: TextField(
@@ -409,7 +436,7 @@ class _HimnarioHomePageState extends State<HimnarioHomePage> with AutomaticKeepA
               decoration: InputDecoration(
                 hintText: 'Buscar himno',
                 hintStyle: TextStyle(
-                  color: AppColors.textSecondary,
+                  color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary,
                   fontSize: 16,
                 ),
                 border: InputBorder.none,
@@ -417,7 +444,7 @@ class _HimnarioHomePageState extends State<HimnarioHomePage> with AutomaticKeepA
               ),
               style: TextStyle(
                 fontSize: 16,
-                color: AppColors.textPrimary,
+                color: isDarkMode ? AppColors.textWhite : AppColors.textPrimary,
               ),
             ),
           ),
@@ -428,7 +455,7 @@ class _HimnarioHomePageState extends State<HimnarioHomePage> with AutomaticKeepA
                 padding: EdgeInsets.all(12),
                 child: Icon(
                   Icons.close,
-                  color: AppColors.textSecondary,
+                  color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary,
                   size: 20,
                 ),
               ),
@@ -439,30 +466,32 @@ class _HimnarioHomePageState extends State<HimnarioHomePage> with AutomaticKeepA
     );
   }
 
-  Widget _buildHymnsList() {
+  Widget _buildHymnsList(bool isDarkMode) {
     return Expanded(
       child: _isLoading
-          ? _buildLoadingState()
+          ? _buildLoadingState(isDarkMode)
           : _allHymns.isEmpty
-              ? _buildEmptyState()
+              ? _buildEmptyState(isDarkMode)
               : _filteredHymns.isEmpty
-                  ? _buildNoResultsState()
-                  : _buildHymnsListView(),
+                  ? _buildNoResultsState(isDarkMode)
+                  : _buildHymnsListView(isDarkMode),
     );
   }
 
-  Widget _buildLoadingState() {
+  Widget _buildLoadingState(bool isDarkMode) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(color: AppColors.primary),
+          CircularProgressIndicator(
+            color: isDarkMode ? AppColors.primaryLight : AppColors.primary,
+          ),
           SizedBox(height: 16),
           Text(
             'Cargando himnos...',
             style: TextStyle(
               fontSize: 16,
-              color: AppColors.textSecondary,
+              color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary,
             ),
           ),
         ],
@@ -470,7 +499,7 @@ class _HimnarioHomePageState extends State<HimnarioHomePage> with AutomaticKeepA
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(bool isDarkMode) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -478,14 +507,14 @@ class _HimnarioHomePageState extends State<HimnarioHomePage> with AutomaticKeepA
           Icon(
             Icons.library_music_outlined,
             size: 64,
-            color: AppColors.textSecondary.withOpacity(0.5),
+            color: (isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary).withOpacity(0.5),
           ),
           SizedBox(height: 16),
           Text(
             'No se encontraron himnos',
             style: TextStyle(
               fontSize: 18,
-              color: AppColors.textPrimary,
+              color: isDarkMode ? AppColors.textWhite : AppColors.textPrimary,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -495,7 +524,7 @@ class _HimnarioHomePageState extends State<HimnarioHomePage> with AutomaticKeepA
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,
-              color: AppColors.textSecondary,
+              color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary,
             ),
           ),
         ],
@@ -503,7 +532,7 @@ class _HimnarioHomePageState extends State<HimnarioHomePage> with AutomaticKeepA
     );
   }
 
-  Widget _buildNoResultsState() {
+  Widget _buildNoResultsState(bool isDarkMode) {
     return Center(
       child: Padding(
         padding: EdgeInsets.all(32),
@@ -513,14 +542,14 @@ class _HimnarioHomePageState extends State<HimnarioHomePage> with AutomaticKeepA
             Icon(
               Icons.search_off,
               size: 48,
-              color: AppColors.textSecondary.withOpacity(0.5),
+              color: (isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary).withOpacity(0.5),
             ),
             SizedBox(height: 16),
             Text(
               'No se encontraron resultados',
               style: TextStyle(
                 fontSize: 16,
-                color: AppColors.textSecondary,
+                color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary,
               ),
             ),
           ],
@@ -529,13 +558,13 @@ class _HimnarioHomePageState extends State<HimnarioHomePage> with AutomaticKeepA
     );
   }
 
-  Widget _buildHymnsListView() {
+  Widget _buildHymnsListView(bool isDarkMode) {
     return ListView.separated(
       padding: EdgeInsets.symmetric(horizontal: 20),
       itemCount: _filteredHymns.length,
       separatorBuilder: (context, index) => Divider(
         height: 1,
-        color: AppColors.divider,
+        color: isDarkMode ? AppColors.borderDark : AppColors.divider,
       ),
       itemBuilder: (context, index) {
         final hymn = _filteredHymns[index];
@@ -551,7 +580,7 @@ class _HimnarioHomePageState extends State<HimnarioHomePage> with AutomaticKeepA
                   hymn.number.toString(),
                   style: TextStyle(
                     fontSize: 16,
-                    color: AppColors.textSecondary,
+                    color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -560,7 +589,7 @@ class _HimnarioHomePageState extends State<HimnarioHomePage> with AutomaticKeepA
                   Icon(
                     Icons.music_note,
                     size: 16,
-                    color: AppColors.primary,
+                    color: isDarkMode ? AppColors.primaryLight : AppColors.primary,
                   ),
                 ],
               ],
@@ -571,7 +600,7 @@ class _HimnarioHomePageState extends State<HimnarioHomePage> with AutomaticKeepA
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w500,
-              color: AppColors.textPrimary,
+              color: isDarkMode ? AppColors.textWhite : AppColors.textPrimary,
             ),
           ),
           subtitle: Row(
@@ -580,7 +609,7 @@ class _HimnarioHomePageState extends State<HimnarioHomePage> with AutomaticKeepA
                 hymn.type,
                 style: TextStyle(
                   fontSize: 14,
-                  color: AppColors.textSecondary,
+                  color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary,
                 ),
               ),
               if (hymn.audioPath != null) ...[
@@ -588,14 +617,14 @@ class _HimnarioHomePageState extends State<HimnarioHomePage> with AutomaticKeepA
                 Icon(
                   Icons.headphones,
                   size: 14,
-                  color: AppColors.primary,
+                  color: isDarkMode ? AppColors.primaryLight : AppColors.primary,
                 ),
                 SizedBox(width: 4),
                 Text(
                   'Audio disponible',
                   style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.primary,
+                    color: isDarkMode ? AppColors.primaryLight : AppColors.primary,
                     fontWeight: FontWeight.w500,
                   ),
                 ),

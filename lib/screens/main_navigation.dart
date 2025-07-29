@@ -20,6 +20,9 @@ class _MainNavigationState extends State<MainNavigation> {
 
   @override
   Widget build(BuildContext context) {
+    // Detectar si está en modo oscuro
+    bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
     return Scaffold(
       body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
@@ -30,16 +33,19 @@ class _MainNavigationState extends State<MainNavigation> {
           });
         },
         type: BottomNavigationBarType.fixed,
-        backgroundColor: AppColors.backgroundPrimary,
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: AppColors.textSecondary,
+        // Aplicar colores según el tema
+        backgroundColor: isDarkMode ? AppColors.backgroundDark : AppColors.backgroundPrimary,
+        selectedItemColor: isDarkMode ? AppColors.primaryLight : AppColors.primary,
+        unselectedItemColor: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary,
         selectedLabelStyle: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w600,
+          color: isDarkMode ? AppColors.primaryLight : AppColors.primary,
         ),
         unselectedLabelStyle: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w400,
+          color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary,
         ),
         items: [
           BottomNavigationBarItem(

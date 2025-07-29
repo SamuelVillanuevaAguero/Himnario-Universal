@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import '../models/hymn.dart';
 import '../services/favorites_manager.dart';
-import '../constants/app_colors.dart'; // Importar los colores centralizados
+import '../constants/app_colors.dart';
 
 class HymnFullScreenPage extends StatefulWidget {
   final Hymn hymn;
@@ -149,7 +149,7 @@ class _HymnFullScreenPageState extends State<HymnFullScreenPage> {
       SnackBar(
         content: Text(message),
         duration: Duration(seconds: 2),
-        backgroundColor: widget.hymn.isFavorite ? AppColors.snackBarSuccess : AppColors.snackBarError, // Cambio: usar color centralizado
+        backgroundColor: widget.hymn.isFavorite ? AppColors.snackBarSuccess : AppColors.snackBarError,
       ),
     );
   }
@@ -169,22 +169,25 @@ class _HymnFullScreenPageState extends State<HymnFullScreenPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Detectar si está en modo oscuro
+    bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
     return Scaffold(
-      backgroundColor: HymnDetail.headerBackground, // Cambio: usar color centralizado
+      backgroundColor: isDarkMode ? AppColors.backgroundDark : AppColors.backgroundPrimary,
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(),
-            _buildLyricsSection(),
-            _buildAudioControls(),
-            _buildFontSizeControls(),
+            _buildHeader(isDarkMode),
+            _buildLyricsSection(isDarkMode),
+            _buildAudioControls(isDarkMode),
+            _buildFontSizeControls(isDarkMode),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(bool isDarkMode) {
     return Container(
       padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -192,8 +195,8 @@ class _HymnFullScreenPageState extends State<HymnFullScreenPage> {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            HymnDetail.headerBackground, // Cambio: usar color centralizado
-            HymnDetail.headerBackgroundGradient, // Cambio: usar color centralizado
+            isDarkMode ? AppColors.backgroundCard : AppColors.backgroundPrimary,
+            isDarkMode ? AppColors.backgroundDark : AppColors.backgroundPrimary,
           ],
         ),
       ),
@@ -201,7 +204,11 @@ class _HymnFullScreenPageState extends State<HymnFullScreenPage> {
         children: [
           IconButton(
             onPressed: () => Navigator.of(context).pop(),
-            icon: Icon(Icons.arrow_back, color: HymnDetail.backIcon, size: 28), // Cambio: usar color centralizado
+            icon: Icon(
+              Icons.arrow_back, 
+              color: isDarkMode ? AppColors.textWhite : AppColors.textSecondary, 
+              size: 28,
+            ),
           ),
           SizedBox(width: 10),
           Expanded(
@@ -213,7 +220,7 @@ class _HymnFullScreenPageState extends State<HymnFullScreenPage> {
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: HymnDetail.numberText, // Cambio: usar color centralizado
+                    color: isDarkMode ? AppColors.textWhite : AppColors.textPrimary,
                   ),
                 ),
                 SizedBox(height: 4),
@@ -221,7 +228,7 @@ class _HymnFullScreenPageState extends State<HymnFullScreenPage> {
                   widget.hymn.title,
                   style: TextStyle(
                     fontSize: 18,
-                    color: HymnDetail.titleText, // Cambio: usar color centralizado
+                    color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textPrimary,
                   ),
                 ),
                 if (widget.hymn.suggestedTone.isNotEmpty) ...[
@@ -230,7 +237,7 @@ class _HymnFullScreenPageState extends State<HymnFullScreenPage> {
                     'Tono: ${widget.hymn.suggestedTone}',
                     style: TextStyle(
                       fontSize: 14,
-                      color: HymnDetail.toneText, // Cambio: usar color centralizado
+                      color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary,
                     ),
                   ),
                 ],
@@ -241,7 +248,7 @@ class _HymnFullScreenPageState extends State<HymnFullScreenPage> {
             onPressed: _toggleFavorite,
             icon: Icon(
               widget.hymn.isFavorite ? Icons.favorite : Icons.favorite_border,
-              color: widget.hymn.isFavorite ? AppColors.favorite : AppColors.favoriteInactive, // Cambio: usar color centralizado
+              color: widget.hymn.isFavorite ? AppColors.favorite : AppColors.favoriteInactive,
               size: 28,
             ),
           ),
@@ -250,7 +257,7 @@ class _HymnFullScreenPageState extends State<HymnFullScreenPage> {
     );
   }
 
-  Widget _buildLyricsSection() {
+  Widget _buildLyricsSection(bool isDarkMode) {
     return Expanded(
       child: Container(
         width: double.infinity,
@@ -261,7 +268,7 @@ class _HymnFullScreenPageState extends State<HymnFullScreenPage> {
               widget.hymn.lyrics,
               style: TextStyle(
                 fontSize: _fontSize,
-                color: HymnDetail.lyricsText, // Cambio: usar color centralizado
+                color: isDarkMode ? AppColors.textWhite : AppColors.textPrimary,
                 height: 1.6,
                 letterSpacing: 0.5,
               ),
@@ -273,25 +280,35 @@ class _HymnFullScreenPageState extends State<HymnFullScreenPage> {
     );
   }
 
-  Widget _buildAudioControls() {
+  Widget _buildAudioControls(bool isDarkMode) {
     if (widget.hymn.audioPath != null) {
       return Container(
         margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         padding: EdgeInsets.all(15),
         decoration: BoxDecoration(
-          color: HymnDetail.audioControlBackground, // Cambio: usar color centralizado
+          color: isDarkMode ? AppColors.backgroundCard : AppColors.surface,
           borderRadius: BorderRadius.circular(15),
-          border: Border.all(color: HymnDetail.audioControlBorder), // Cambio: usar color centralizado
+          border: Border.all(
+            color: isDarkMode ? AppColors.borderDark : AppColors.border,
+          ),
         ),
         child: Column(
           children: [
             Row(
               children: [
-                Icon(Icons.music_note, color: AppColors.musicNote, size: 20), // Cambio: usar color centralizado
+                Icon(
+                  Icons.music_note, 
+                  color: isDarkMode ? AppColors.primaryLight : AppColors.musicNote, 
+                  size: 20,
+                ),
                 SizedBox(width: 8),
                 Text(
                   'Audio disponible',
-                  style: TextStyle(color: AppColors.textWhite, fontSize: 14, fontWeight: FontWeight.w500), // Cambio: usar color centralizado
+                  style: TextStyle(
+                    color: isDarkMode ? AppColors.textWhite : AppColors.textPrimary, 
+                    fontSize: 14, 
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ],
             ),
@@ -301,7 +318,10 @@ class _HymnFullScreenPageState extends State<HymnFullScreenPage> {
               children: [
                 Text(
                   _formatDuration(_position),
-                  style: TextStyle(color: AppColors.textWhite, fontSize: 12), // Cambio: usar color centralizado
+                  style: TextStyle(
+                    color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary, 
+                    fontSize: 12,
+                  ),
                 ),
                 Expanded(
                   child: Slider(
@@ -309,13 +329,18 @@ class _HymnFullScreenPageState extends State<HymnFullScreenPage> {
                         ? _position.inMilliseconds / _duration.inMilliseconds 
                         : 0.0,
                     onChanged: _seekAudio,
-                    activeColor: AppColors.sliderActive, // Cambio: usar color centralizado
-                    inactiveColor: AppColors.sliderInactive, // Cambio: usar color centralizado
+                    activeColor: isDarkMode ? AppColors.primaryLight : AppColors.sliderActive,
+                    inactiveColor: isDarkMode 
+                        ? AppColors.textWhiteTertiary.withOpacity(0.3)
+                        : AppColors.sliderInactive,
                   ),
                 ),
                 Text(
                   _formatDuration(_duration),
-                  style: TextStyle(color: AppColors.textWhite, fontSize: 12), // Cambio: usar color centralizado
+                  style: TextStyle(
+                    color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary, 
+                    fontSize: 12,
+                  ),
                 ),
               ],
             ),
@@ -326,23 +351,31 @@ class _HymnFullScreenPageState extends State<HymnFullScreenPage> {
               children: [
                 IconButton(
                   onPressed: _stopAudio,
-                  icon: Icon(Icons.stop, color: AppColors.textWhite, size: 30), // Cambio: usar color centralizado
+                  icon: Icon(
+                    Icons.stop, 
+                    color: isDarkMode ? AppColors.textWhite : AppColors.textPrimary, 
+                    size: 30,
+                  ),
                 ),
                 Container(
                   decoration: BoxDecoration(
-                    color: AppColors.primary, // Cambio: usar color centralizado
+                    color: isDarkMode ? AppColors.primaryLight : AppColors.primary,
                     shape: BoxShape.circle,
                   ),
                   child: IconButton(
                     onPressed: _playPauseAudio,
                     icon: Icon(
                       _isPlaying ? Icons.pause : Icons.play_arrow,
-                      color: AppColors.textWhite, // Cambio: usar color centralizado
+                      color: isDarkMode ? AppColors.backgroundDark : AppColors.textWhite,
                       size: 40,
                     ),
                   ),
                 ),
-                Icon(Icons.volume_up, color: AppColors.textWhiteTertiary, size: 30), // Cambio: usar color centralizado
+                Icon(
+                  Icons.volume_up, 
+                  color: isDarkMode ? AppColors.textWhiteTertiary : AppColors.textTertiary, 
+                  size: 30,
+                ),
               ],
             ),
           ],
@@ -353,17 +386,26 @@ class _HymnFullScreenPageState extends State<HymnFullScreenPage> {
         margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         padding: EdgeInsets.all(15),
         decoration: BoxDecoration(
-          color: HymnDetail.audioUnavailableBackground, // Cambio: usar color centralizado
+          color: isDarkMode ? AppColors.backgroundCard : AppColors.error.withOpacity(0.1),
           borderRadius: BorderRadius.circular(15),
-          border: Border.all(color: HymnDetail.audioUnavailableBorder), // Cambio: usar color centralizado
+          border: Border.all(
+            color: isDarkMode ? AppColors.borderDark : AppColors.error.withOpacity(0.3),
+          ),
         ),
         child: Row(
           children: [
-            Icon(Icons.music_off, color: HymnDetail.audioUnavailableIcon, size: 20), // Cambio: usar color centralizado
+            Icon(
+              Icons.music_off, 
+              color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.error, 
+              size: 20,
+            ),
             SizedBox(width: 8),
             Text(
               'Audio no disponible para este himno',
-              style: TextStyle(color: HymnDetail.audioUnavailableIcon, fontSize: 14), // Cambio: usar color centralizado
+              style: TextStyle(
+                color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.error, 
+                fontSize: 14,
+              ),
             ),
           ],
         ),
@@ -371,7 +413,7 @@ class _HymnFullScreenPageState extends State<HymnFullScreenPage> {
     }
   }
 
-  Widget _buildFontSizeControls() {
+  Widget _buildFontSizeControls(bool isDarkMode) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Row(
@@ -379,16 +421,27 @@ class _HymnFullScreenPageState extends State<HymnFullScreenPage> {
         children: [
           IconButton(
             onPressed: _decreaseFontSize,
-            icon: Icon(Icons.text_decrease, color: HymnDetail.fontSizeIcon, size: 30), // Cambio: usar color centralizado
+            icon: Icon(
+              Icons.text_decrease, 
+              color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary, 
+              size: 30,
+            ),
             tooltip: 'Disminuir tamaño de texto',
           ),
           Text(
             '${_fontSize.round()}',
-            style: TextStyle(color: HymnDetail.fontSizeIcon, fontSize: 16), // Cambio: usar color centralizado
+            style: TextStyle(
+              color: isDarkMode ? AppColors.textWhite : AppColors.textPrimary, 
+              fontSize: 16,
+            ),
           ),
           IconButton(
             onPressed: _increaseFontSize,
-            icon: Icon(Icons.text_increase, color: HymnDetail.fontSizeIcon, size: 30), // Cambio: usar color centralizado
+            icon: Icon(
+              Icons.text_increase, 
+              color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary, 
+              size: 30,
+            ),
             tooltip: 'Aumentar tamaño de texto',
           ),
         ],

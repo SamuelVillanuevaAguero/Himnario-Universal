@@ -115,28 +115,31 @@ class _CategoriesPageState extends State<CategoriesPage> with AutomaticKeepAlive
   Widget build(BuildContext context) {
     super.build(context);
     
+    // Detectar si está en modo oscuro
+    bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
     return Scaffold(
-      backgroundColor: AppColors.backgroundPrimary,
+      backgroundColor: isDarkMode ? AppColors.backgroundDark : AppColors.backgroundPrimary,
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(),
+            _buildHeader(isDarkMode),
             SizedBox(height: 20),
-            Expanded(child: _buildContent()),
+            Expanded(child: _buildContent(isDarkMode)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(bool isDarkMode) {
     return Container(
       padding: EdgeInsets.all(20),
       child: Row(
         children: [
           Icon(
             Icons.category,
-            color: AppColors.primary,
+            color: isDarkMode ? AppColors.primaryLight : AppColors.primary,
             size: 28,
           ),
           SizedBox(width: 12),
@@ -144,7 +147,7 @@ class _CategoriesPageState extends State<CategoriesPage> with AutomaticKeepAlive
             'Categorías',
             style: TextStyle(
               fontSize: 24,
-              color: AppColors.textPrimary,
+              color: isDarkMode ? AppColors.textWhite : AppColors.textPrimary,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -153,13 +156,13 @@ class _CategoriesPageState extends State<CategoriesPage> with AutomaticKeepAlive
             Container(
               padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
+                color: (isDarkMode ? AppColors.primaryLight : AppColors.primary).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Text(
                 '${_categories.length}',
                 style: TextStyle(
-                  color: AppColors.primary,
+                  color: isDarkMode ? AppColors.primaryLight : AppColors.primary,
                   fontWeight: FontWeight.w600,
                   fontSize: 14,
                 ),
@@ -170,30 +173,32 @@ class _CategoriesPageState extends State<CategoriesPage> with AutomaticKeepAlive
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(bool isDarkMode) {
     if (_isLoading) {
-      return _buildLoadingState();
+      return _buildLoadingState(isDarkMode);
     }
 
     if (_categories.isEmpty) {
-      return _buildEmptyState();
+      return _buildEmptyState(isDarkMode);
     }
 
-    return _buildCategoriesList();
+    return _buildCategoriesList(isDarkMode);
   }
 
-  Widget _buildLoadingState() {
+  Widget _buildLoadingState(bool isDarkMode) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(color: AppColors.primary),
+          CircularProgressIndicator(
+            color: isDarkMode ? AppColors.primaryLight : AppColors.primary,
+          ),
           SizedBox(height: 16),
           Text(
             'Cargando categorías...',
             style: TextStyle(
               fontSize: 16,
-              color: AppColors.textSecondary,
+              color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary,
             ),
           ),
         ],
@@ -201,7 +206,7 @@ class _CategoriesPageState extends State<CategoriesPage> with AutomaticKeepAlive
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(bool isDarkMode) {
     return Center(
       child: Padding(
         padding: EdgeInsets.all(32),
@@ -211,14 +216,14 @@ class _CategoriesPageState extends State<CategoriesPage> with AutomaticKeepAlive
             Icon(
               Icons.folder_outlined,
               size: 64,
-              color: AppColors.textSecondary.withOpacity(0.5),
+              color: (isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary).withOpacity(0.5),
             ),
             SizedBox(height: 24),
             Text(
               'No se encontraron categorías',
               style: TextStyle(
                 fontSize: 20,
-                color: AppColors.textPrimary,
+                color: isDarkMode ? AppColors.textWhite : AppColors.textPrimary,
                 fontWeight: FontWeight.w500,
               ),
               textAlign: TextAlign.center,
@@ -228,7 +233,7 @@ class _CategoriesPageState extends State<CategoriesPage> with AutomaticKeepAlive
               'Agrega archivos .txt en la carpeta\nassets/CATEGORIAS/ con los números\nde himnos de cada categoría',
               style: TextStyle(
                 fontSize: 16,
-                color: AppColors.textSecondary,
+                color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary,
                 height: 1.4,
               ),
               textAlign: TextAlign.center,
@@ -237,10 +242,10 @@ class _CategoriesPageState extends State<CategoriesPage> with AutomaticKeepAlive
             Container(
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
+                color: (isDarkMode ? AppColors.primaryLight : AppColors.primary).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: AppColors.primary.withOpacity(0.3),
+                  color: (isDarkMode ? AppColors.primaryLight : AppColors.primary).withOpacity(0.3),
                   width: 1,
                 ),
               ),
@@ -250,14 +255,14 @@ class _CategoriesPageState extends State<CategoriesPage> with AutomaticKeepAlive
                   Icon(
                     Icons.info_outline,
                     size: 16,
-                    color: AppColors.primary,
+                    color: isDarkMode ? AppColors.primaryLight : AppColors.primary,
                   ),
                   SizedBox(width: 8),
                   Text(
                     'Ejemplo: Categoria 1.txt',
                     style: TextStyle(
                       fontSize: 14,
-                      color: AppColors.primary,
+                      color: isDarkMode ? AppColors.primaryLight : AppColors.primary,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -270,13 +275,13 @@ class _CategoriesPageState extends State<CategoriesPage> with AutomaticKeepAlive
     );
   }
 
-  Widget _buildCategoriesList() {
+  Widget _buildCategoriesList(bool isDarkMode) {
     return ListView.separated(
       padding: EdgeInsets.symmetric(horizontal: 20),
       itemCount: _categories.length,
       separatorBuilder: (context, index) => Divider(
         height: 1,
-        color: AppColors.divider,
+        color: isDarkMode ? AppColors.borderDark : AppColors.divider,
       ),
       itemBuilder: (context, index) {
         final category = _categories[index];
@@ -286,12 +291,12 @@ class _CategoriesPageState extends State<CategoriesPage> with AutomaticKeepAlive
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
+              color: (isDarkMode ? AppColors.primaryLight : AppColors.primary).withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
               Icons.folder,
-              color: AppColors.primary,
+              color: isDarkMode ? AppColors.primaryLight : AppColors.primary,
               size: 24,
             ),
           ),
@@ -300,20 +305,20 @@ class _CategoriesPageState extends State<CategoriesPage> with AutomaticKeepAlive
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+              color: isDarkMode ? AppColors.textWhite : AppColors.textPrimary,
             ),
           ),
           subtitle: Text(
             '${category.hymnCount} himnos',
             style: TextStyle(
               fontSize: 14,
-              color: AppColors.textSecondary,
+              color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary,
               fontWeight: FontWeight.w400,
             ),
           ),
           trailing: Icon(
             Icons.arrow_forward_ios,
-            color: AppColors.textSecondary,
+            color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary,
             size: 16,
           ),
           onTap: () => _navigateToCategory(category),

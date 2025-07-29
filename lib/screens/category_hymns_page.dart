@@ -226,13 +226,19 @@ class _CategoryHymnsPageState extends State<CategoryHymnsPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Detectar si está en modo oscuro
+    bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
     return Scaffold(
-      backgroundColor: AppColors.backgroundPrimary,
+      backgroundColor: isDarkMode ? AppColors.backgroundDark : AppColors.backgroundPrimary,
       appBar: AppBar(
-        backgroundColor: AppColors.backgroundPrimary,
+        backgroundColor: isDarkMode ? AppColors.backgroundDark : AppColors.backgroundPrimary,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.textPrimary),
+          icon: Icon(
+            Icons.arrow_back, 
+            color: isDarkMode ? AppColors.textWhite : AppColors.textPrimary,
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Column(
@@ -241,7 +247,7 @@ class _CategoryHymnsPageState extends State<CategoryHymnsPage> {
             Text(
               widget.category.name,
               style: TextStyle(
-                color: AppColors.textPrimary,
+                color: isDarkMode ? AppColors.textWhite : AppColors.textPrimary,
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
               ),
@@ -249,7 +255,7 @@ class _CategoryHymnsPageState extends State<CategoryHymnsPage> {
             Text(
               '${widget.category.hymnCount} himnos',
               style: TextStyle(
-                color: AppColors.textSecondary,
+                color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary,
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
               ),
@@ -257,34 +263,36 @@ class _CategoryHymnsPageState extends State<CategoryHymnsPage> {
           ],
         ),
       ),
-      body: _buildBody(),
+      body: _buildBody(isDarkMode),
     );
   }
 
-  Widget _buildBody() {
+  Widget _buildBody(bool isDarkMode) {
     if (_isLoading) {
-      return _buildLoadingState();
+      return _buildLoadingState(isDarkMode);
     }
 
     if (_categoryHymns.isEmpty) {
-      return _buildEmptyState();
+      return _buildEmptyState(isDarkMode);
     }
 
-    return _buildHymnsList();
+    return _buildHymnsList(isDarkMode);
   }
 
-  Widget _buildLoadingState() {
+  Widget _buildLoadingState(bool isDarkMode) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(color: AppColors.primary),
+          CircularProgressIndicator(
+            color: isDarkMode ? AppColors.primaryLight : AppColors.primary,
+          ),
           SizedBox(height: 16),
           Text(
             'Cargando himnos de la categoría...',
             style: TextStyle(
               fontSize: 16,
-              color: AppColors.textSecondary,
+              color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary,
             ),
           ),
         ],
@@ -292,7 +300,7 @@ class _CategoryHymnsPageState extends State<CategoryHymnsPage> {
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(bool isDarkMode) {
     return Center(
       child: Padding(
         padding: EdgeInsets.all(32),
@@ -302,14 +310,14 @@ class _CategoryHymnsPageState extends State<CategoryHymnsPage> {
             Icon(
               Icons.library_music_outlined,
               size: 64,
-              color: AppColors.textSecondary,
+              color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary,
             ),
             SizedBox(height: 24),
             Text(
               'No se encontraron himnos',
               style: TextStyle(
                 fontSize: 20,
-                color: AppColors.textPrimary,
+                color: isDarkMode ? AppColors.textWhite : AppColors.textPrimary,
                 fontWeight: FontWeight.w500,
               ),
               textAlign: TextAlign.center,
@@ -319,7 +327,7 @@ class _CategoryHymnsPageState extends State<CategoryHymnsPage> {
               'Esta categoría no contiene himnos\no los archivos no están disponibles',
               style: TextStyle(
                 fontSize: 16,
-                color: AppColors.textSecondary,
+                color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary,
                 height: 1.4,
               ),
               textAlign: TextAlign.center,
@@ -330,81 +338,87 @@ class _CategoryHymnsPageState extends State<CategoryHymnsPage> {
     );
   }
 
-  Widget _buildHymnsList() {
+  Widget _buildHymnsList(bool isDarkMode) {
     return ListView.separated(
       padding: EdgeInsets.all(20),
       itemCount: _categoryHymns.length,
       separatorBuilder: (context, index) => Divider(
         height: 1,
-        color: AppColors.divider,
+        color: isDarkMode ? AppColors.borderDark : AppColors.divider,
       ),
       itemBuilder: (context, index) {
         final hymn = _categoryHymns[index];
-        return ListTile(
-          contentPadding: EdgeInsets.symmetric(vertical: 8),
-          leading: Container(
-            width: 40,
-            alignment: Alignment.centerLeft,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
+        return Container(
+          decoration: BoxDecoration(
+            color: isDarkMode ? AppColors.backgroundCard.withOpacity(0.3) : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: ListTile(
+            contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+            leading: Container(
+              width: 50,
+              alignment: Alignment.centerLeft,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    hymn.number.toString(),
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  if (hymn.audioPath != null) ...[
+                    SizedBox(width: 4),
+                    Icon(
+                      Icons.music_note,
+                      size: 16,
+                      color: isDarkMode ? AppColors.primaryLight : AppColors.primary,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            title: Text(
+              hymn.title,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: isDarkMode ? AppColors.textWhite : AppColors.textPrimary,
+              ),
+            ),
+            subtitle: hymn.audioPath != null ? Row(
               children: [
+                Icon(
+                  Icons.headphones,
+                  size: 14,
+                  color: isDarkMode ? AppColors.primaryLight : AppColors.primary,
+                ),
+                SizedBox(width: 4),
                 Text(
-                  hymn.number.toString(),
+                  'Audio disponible',
                   style: TextStyle(
-                    fontSize: 16,
-                    color: AppColors.textSecondary,
+                    fontSize: 12,
+                    color: isDarkMode ? AppColors.primaryLight : AppColors.primary,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                if (hymn.audioPath != null) ...[
-                  SizedBox(width: 4),
-                  Icon(
-                    Icons.music_note,
-                    size: 16,
-                    color: AppColors.primary,
-                  ),
-                ],
               ],
-            ),
-          ),
-          title: Text(
-            hymn.title,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          subtitle: hymn.audioPath != null ? Row(
-            children: [
-              Icon(
-                Icons.headphones,
-                size: 14,
-                color: AppColors.primary,
-              ),
-              SizedBox(width: 4),
-              Text(
-                'Audio disponible',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w500,
+            ) : null,
+            trailing: GestureDetector(
+              onTap: () => _toggleFavorite(index),
+              child: Container(
+                padding: EdgeInsets.all(8),
+                child: Icon(
+                  hymn.isFavorite ? Icons.favorite : Icons.favorite_border,
+                  color: hymn.isFavorite ? AppColors.favorite : AppColors.favoriteInactive,
+                  size: 25,
                 ),
               ),
-            ],
-          ) : null,
-          trailing: GestureDetector(
-            onTap: () => _toggleFavorite(index),
-            child: Container(
-              padding: EdgeInsets.all(8),
-              child: Icon(
-                hymn.isFavorite ? Icons.favorite : Icons.favorite_border,
-                color: hymn.isFavorite ? AppColors.favorite : AppColors.favoriteInactive,
-                size: 25,
-              ),
             ),
+            onTap: () => _navigateToHymnDetail(hymn),
           ),
-          onTap: () => _navigateToHymnDetail(hymn),
         );
       },
     );
