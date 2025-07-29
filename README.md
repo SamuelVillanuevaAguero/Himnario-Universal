@@ -1,6 +1,6 @@
 # Himnario | Universal 📖
 
-Este proyecto es la digitalización del himnario de la denominación "Iglesia Cristiana Universal Apostolica de Jesús Pentecostés Asociación Religiosa (I.C.U.A.D.J.P.) A.R"
+Este proyecto es la digitalización del himnario de la denominación "Iglesia Cristiana Universal Apostolica de Jesús Pentecostés Asociación Religiosa (I.C.U.A.D.J.P. A.R)"
 
 ## Funciones del Proyecto 
 - [Himnos](#himnos-)
