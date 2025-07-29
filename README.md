@@ -26,3 +26,11 @@ Sección de los cantos marcados como favoritos con el icono de ❤️ en cualqui
 ## Categorias 📂
 
 Himnos seccionados por categorias, como: Primicias, Cosechas, Navidad, etc.
+
+## Colaboradores 🤝
+
+🚀 Gracias a la colaboración en este proyecto 🚀
+
+- [@Samuel Villanueva Aguero](https://www.linkedin.com/in/samuel-villanueva-aguero-05b205370/) - .
+- [@Milca Sanchez Bautista](https://www.facebook.com/profile.php?id=100076566248650) - .
+- [@Elías Ramsés Villanueva Aguero](https://www.facebook.com/EliasRamsesVillanueva) - .
