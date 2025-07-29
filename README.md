@@ -31,6 +31,6 @@ Himnos seccionados por categorias, como: Primicias, Cosechas, Navidad, etc.
 
 🚀 Gracias a la colaboración en este proyecto 🚀
 
-- [@Samuel Villanueva Aguero](https://www.linkedin.com/in/samuel-villanueva-aguero-05b205370/) - .
-- [@Milca Sanchez Bautista](https://www.facebook.com/profile.php?id=100076566248650) - .
-- [@Elías Ramsés Villanueva Aguero](https://www.facebook.com/EliasRamsesVillanueva) - .
+- [Samuel Villanueva Aguero](https://www.linkedin.com/in/samuel-villanueva-aguero-05b205370/) - Por el desarrollo tecnico de el proyecto y colaboración en los audios de cada himno.
+- [Milca Sanchez Bautista](https://www.facebook.com/profile.php?id=100076566248650) - Por la escritura de parte de los himnos y colaboración en los audios de cada himno.
+- [Elías Ramsés Villanueva Aguero](https://www.facebook.com/EliasRamsesVillanueva) - Por la escritura de parte de los himnos y colaboración en los audios de cada himno.
