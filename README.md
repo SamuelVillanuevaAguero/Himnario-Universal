@@ -1,16 +1,17 @@
-# prueba1
+# Himnario | Universal 🚀
 
-A new Flutter project.
+Este proyecto es la digitalización del himnario de la denominación "Iglesia Cristiana Universal Apostolica de Jesús Pentecostés A.R"
 
-## Getting Started
+## Funciones del Proyecto 📖
+- [Himnos]
+- [Búsqueda avanzada]
+- [Favoritos](#contribución-)
+- [Categorias](#licencia-)
 
-This project is a starting point for a Flutter application.
+## Himnos
 
-A few resources to get you started if this is your first Flutter project:
+## Búsqueda avanzada
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Favoritos
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Categorias
