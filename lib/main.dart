@@ -64,7 +64,6 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       
-      // Esto hace que el tema se seleccione automáticamente según la configuración del sistema
       themeMode: ThemeMode.system,
       
       home: MainNavigation(),
