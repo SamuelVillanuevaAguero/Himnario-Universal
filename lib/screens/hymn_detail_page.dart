@@ -195,7 +195,7 @@ class _HymnFullScreenPageState extends State<HymnFullScreenPage> {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            isDarkMode ? AppColors.backgroundCard : AppColors.backgroundPrimary,
+            isDarkMode ? AppColors.backgroundDark : AppColors.backgroundPrimary,
             isDarkMode ? AppColors.backgroundDark : AppColors.backgroundPrimary,
           ],
         ),

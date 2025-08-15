@@ -15,7 +15,7 @@ class HimnarioHomePage extends StatefulWidget {
 class _HimnarioHomePageState extends State<HimnarioHomePage> with AutomaticKeepAliveClientMixin {
   final TextEditingController _searchController = TextEditingController();
   List<Hymn> _allHymns = [];
-  List<Hymn> _filteredHymns = [];
+  List<SearchResultHymn> _filteredHymns = [];
   List<String> _carouselImages = [];
   Set<String> _availableAudios = {};
   Set<int> _favoriteHymns = {};
@@ -59,8 +59,8 @@ class _HimnarioHomePageState extends State<HimnarioHomePage> with AutomaticKeepA
     for (var hymn in _allHymns) {
       hymn.isFavorite = _favoriteHymns.contains(hymn.number);
     }
-    for (var hymn in _filteredHymns) {
-      hymn.isFavorite = _favoriteHymns.contains(hymn.number);
+    for (var searchResult in _filteredHymns) {
+      searchResult.hymn.isFavorite = _favoriteHymns.contains(searchResult.hymn.number);
     }
   }
 
@@ -135,7 +135,7 @@ class _HimnarioHomePageState extends State<HimnarioHomePage> with AutomaticKeepA
 
       setState(() {
         _allHymns = loadedHymns;
-        _filteredHymns = _allHymns;
+        _filteredHymns = _allHymns.map((h) => SearchResultHymn(hymn: h)).toList();
         _isLoading = false;
       });
 
@@ -233,22 +233,73 @@ class _HimnarioHomePageState extends State<HimnarioHomePage> with AutomaticKeepA
     return str;
   }
 
+  String _findMatchingLine(String lyrics, String query) {
+    final lines = lyrics.split('\n');
+    final normalizedQuery = _removeDiacritics(query.toLowerCase());
+    
+    for (final line in lines) {
+      final normalizedLine = _removeDiacritics(line.toLowerCase());
+      if (normalizedLine.contains(normalizedQuery) && line.trim().isNotEmpty) {
+        return line.trim();
+      }
+    }
+    return '';
+  }
+
   void _filterHymns(String query) {
     setState(() {
       if (query.isEmpty) {
-        _filteredHymns = _allHymns;
+        _filteredHymns = _allHymns.map((h) => SearchResultHymn(hymn: h)).toList();
       } else {
-        _filteredHymns = _allHymns.where((hymn) {
-          return _removeDiacritics(hymn.title.toLowerCase()).contains(
-                _removeDiacritics(query.trim().toLowerCase()),) ||  hymn.number.toString().contains(query.trim()); 
-        }).toList();
+        final normalizedQuery = _removeDiacritics(query.trim().toLowerCase());
+        List<SearchResultHymn> results = [];
+        
+        for (final hymn in _allHymns) {
+          SearchResultType? matchType;
+          String matchingText = '';
+          
+          // Buscar por número
+          if (hymn.number.toString().contains(query.trim())) {
+            matchType = SearchResultType.number;
+            matchingText = 'Himno #${hymn.number}';
+          }
+          // Buscar por título
+          else if (_removeDiacritics(hymn.title.toLowerCase()).contains(normalizedQuery)) {
+            matchType = SearchResultType.title;
+            matchingText = hymn.title;
+          }
+          // Buscar en las letras
+          else if (_removeDiacritics(hymn.lyrics.toLowerCase()).contains(normalizedQuery)) {
+            matchType = SearchResultType.lyrics;
+            matchingText = _findMatchingLine(hymn.lyrics, query);
+          }
+          
+          if (matchType != null) {
+            results.add(SearchResultHymn(
+              hymn: hymn,
+              matchType: matchType,
+              matchingText: matchingText,
+            ));
+          }
+        }
+        
+        // Ordenar por relevancia: número > título > letras
+        results.sort((a, b) {
+          final aOrder = a.matchType?.index ?? 999;
+          final bOrder = b.matchType?.index ?? 999;
+          if (aOrder != bOrder) return aOrder.compareTo(bOrder);
+          return a.hymn.number.compareTo(b.hymn.number);
+        });
+        
+        _filteredHymns = results;
       }
     });
   }
 
   void _toggleFavorite(int index) async {
     try {
-      final hymn = _filteredHymns[index];
+      final searchResult = _filteredHymns[index];
+      final hymn = searchResult.hymn;
       final newFavoriteStatus = await FavoritesManager.toggleFavorite(hymn.number);
       
       setState(() {
@@ -290,7 +341,7 @@ class _HimnarioHomePageState extends State<HimnarioHomePage> with AutomaticKeepA
   void _clearSearch() {
     setState(() {
       _searchController.clear();
-      _filteredHymns = _allHymns;
+      _filteredHymns = _allHymns.map((h) => SearchResultHymn(hymn: h)).toList();
     });
   }
 
@@ -337,9 +388,9 @@ class _HimnarioHomePageState extends State<HimnarioHomePage> with AutomaticKeepA
         _allHymns[mainIndex].isFavorite = isFavorite;
       }
       
-      final filteredIndex = _filteredHymns.indexWhere((h) => h.number == hymnNumber);
+      final filteredIndex = _filteredHymns.indexWhere((h) => h.hymn.number == hymnNumber);
       if (filteredIndex != -1) {
-        _filteredHymns[filteredIndex].isFavorite = isFavorite;
+        _filteredHymns[filteredIndex].hymn.isFavorite = isFavorite;
       }
       
       if (isFavorite) {
@@ -434,7 +485,7 @@ class _HimnarioHomePageState extends State<HimnarioHomePage> with AutomaticKeepA
               controller: _searchController,
               onChanged: _filterHymns,
               decoration: InputDecoration(
-                hintText: 'Buscar himno',
+                hintText: 'Buscar por título, número o letra...',
                 hintStyle: TextStyle(
                   color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary,
                   fontSize: 16,
@@ -552,6 +603,16 @@ class _HimnarioHomePageState extends State<HimnarioHomePage> with AutomaticKeepA
                 color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary,
               ),
             ),
+            SizedBox(height: 8),
+            Text(
+              'Intenta buscar por:\n• Número del himno\n• Título del himno\n• Palabras de la letra',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary,
+                height: 1.4,
+              ),
+            ),
           ],
         ),
       ),
@@ -567,7 +628,9 @@ class _HimnarioHomePageState extends State<HimnarioHomePage> with AutomaticKeepA
         color: isDarkMode ? AppColors.borderDark : AppColors.divider,
       ),
       itemBuilder: (context, index) {
-        final hymn = _filteredHymns[index];
+        final searchResult = _filteredHymns[index];
+        final hymn = searchResult.hymn;
+        
         return ListTile(
           contentPadding: EdgeInsets.symmetric(vertical: 8),
           leading: Container(
@@ -585,7 +648,7 @@ class _HimnarioHomePageState extends State<HimnarioHomePage> with AutomaticKeepA
                   ),
                 ),
                 if (hymn.audioPath != null) ...[
-                  SizedBox(width: 4),
+                  SizedBox(width: 10),
                   Icon(
                     Icons.music_note,
                     size: 16,
@@ -603,32 +666,60 @@ class _HimnarioHomePageState extends State<HimnarioHomePage> with AutomaticKeepA
               color: isDarkMode ? AppColors.textWhite : AppColors.textPrimary,
             ),
           ),
-          subtitle: Row(
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                hymn.type,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary,
+              // Mostrar información de audio si está disponible
+              if (hymn.audioPath != null)
+                Row(
+                  children: [
+                    Icon(
+                      Icons.headphones,
+                      size: 14,
+                      color: isDarkMode ? AppColors.audioAvailable : AppColors.audioAvailable,
+                    ),
+                    SizedBox(width: 4),
+                    Text(
+                      'Audio disponible',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDarkMode ? AppColors.audioAvailable : AppColors.audioAvailable,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              if (hymn.audioPath != null) ...[
-                SizedBox(width: 8),
-                Icon(
-                  Icons.headphones,
-                  size: 14,
-                  color: isDarkMode ? AppColors.primaryLight : AppColors.primary,
+              // Mostrar el tipo de coincidencia y texto coincidente
+              if (searchResult.matchType != null && _searchController.text.isNotEmpty) ...[
+                if (hymn.audioPath != null) SizedBox(height: 2),
+                Row(
+                  children: [
+                    _buildMatchTypeIcon(searchResult.matchType!, isDarkMode),
+                    SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        _getMatchTypeDescription(searchResult.matchType!, searchResult.matchingText),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary,
+                          fontStyle: searchResult.matchType == SearchResultType.lyrics 
+                              ? FontStyle.italic 
+                              : FontStyle.normal,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(width: 4),
+              ] else if (hymn.type.isNotEmpty)
                 Text(
-                  'Audio disponible',
+                  hymn.type,
                   style: TextStyle(
-                    fontSize: 12,
-                    color: isDarkMode ? AppColors.primaryLight : AppColors.primary,
-                    fontWeight: FontWeight.w500,
+                    fontSize: 14,
+                    color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary,
                   ),
                 ),
-              ],
             ],
           ),
           trailing: GestureDetector(
@@ -647,4 +738,59 @@ class _HimnarioHomePageState extends State<HimnarioHomePage> with AutomaticKeepA
       },
     );
   }
+
+  Widget _buildMatchTypeIcon(SearchResultType matchType, bool isDarkMode) {
+    IconData icon;
+    Color color = isDarkMode ? AppColors.primaryLight : AppColors.primary;
+    
+    switch (matchType) {
+      case SearchResultType.number:
+        icon = Icons.tag;
+        break;
+      case SearchResultType.title:
+        icon = Icons.book;
+        break;
+      case SearchResultType.lyrics:
+        icon = Icons.lyrics;
+        color = Colors.orange;
+        break;
+    }
+    
+    return Icon(
+      icon,
+      size: 14,
+      color: color,
+    );
+  }
+
+  String _getMatchTypeDescription(SearchResultType matchType, String matchingText) {
+    switch (matchType) {
+      case SearchResultType.number:
+        return 'Coincidencia por número';
+      case SearchResultType.title:
+        return 'Coincidencia en título';
+      case SearchResultType.lyrics:
+        return matchingText.isNotEmpty 
+            ? 'En la letra: "$matchingText"'
+            : 'Coincidencia en la letra';
+    }
+  }
+}
+
+enum SearchResultType {
+  number,
+  title,
+  lyrics,
+}
+
+class SearchResultHymn {
+  final Hymn hymn;
+  final SearchResultType? matchType;
+  final String matchingText;
+  
+  SearchResultHymn({
+    required this.hymn,
+    this.matchType,
+    this.matchingText = '',
+  });
 }

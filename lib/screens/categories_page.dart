@@ -11,7 +11,12 @@ class CategoriesPage extends StatefulWidget {
 }
 
 class _CategoriesPageState extends State<CategoriesPage> with AutomaticKeepAliveClientMixin {
-  List<Category> _categories = [];
+  final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
+  
+  List<Category> _allCategories = [];
+  List<Category> _filteredCategories = [];
+  
   bool _isLoading = true;
 
   @override
@@ -20,7 +25,45 @@ class _CategoriesPageState extends State<CategoriesPage> with AutomaticKeepAlive
   @override
   void initState() {
     super.initState();
-    _loadCategories();
+    _loadData();
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _searchFocusNode.dispose();
+    super.dispose();
+  }
+
+  // Función para normalizar texto removiendo acentos y convirtiendo a minúsculas
+  String _normalizeText(String text) {
+    const withAccents = 'áéíóúñüÁÉÍÓÚÑÜàèìòùÀÈÌÒÙâêîôûÂÊÎÔÛãõÃÕçÇ';
+    const withoutAccents = 'aeiouñuAEIOUNUaeiouAEIOUaeiouAEIOUaoAOcC';
+    
+    String normalized = text.toLowerCase();
+    
+    for (int i = 0; i < withAccents.length; i++) {
+      normalized = normalized.replaceAll(withAccents[i], withoutAccents[i]);
+    }
+    
+    return normalized;
+  }
+
+  Future<void> _loadData() async {
+    try {
+      await _loadCategories();
+      
+      setState(() {
+        _filteredCategories = List.from(_allCategories);
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error loading data: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   Future<void> _loadCategories() async {
@@ -48,17 +91,10 @@ class _CategoriesPageState extends State<CategoriesPage> with AutomaticKeepAlive
 
       // Ordenar categorías alfabéticamente
       loadedCategories.sort((a, b) => a.name.compareTo(b.name));
-
-      setState(() {
-        _categories = loadedCategories;
-        _isLoading = false;
-      });
+      _allCategories = loadedCategories;
 
     } catch (e) {
       print('Error loading categories: $e');
-      setState(() {
-        _isLoading = false;
-      });
     }
   }
 
@@ -103,6 +139,46 @@ class _CategoriesPageState extends State<CategoriesPage> with AutomaticKeepAlive
     }
   }
 
+  void _onSearchChanged() {
+    final query = _searchController.text.trim();
+    _filterCategories(query);
+  }
+
+  void _filterCategories(String query) {
+    if (query.isEmpty) {
+      setState(() {
+        _filteredCategories = List.from(_allCategories);
+      });
+      return;
+    }
+
+    // Normalizar la búsqueda para ignorar acentos
+    final normalizedQuery = _normalizeText(query);
+    
+    final filtered = _allCategories.where((category) {
+      final normalizedCategoryName = _normalizeText(category.name);
+      return normalizedCategoryName.contains(normalizedQuery);
+    }).toList();
+
+    // Ordenar por relevancia: primero las que empiecen con la búsqueda, luego las que la contengan
+    filtered.sort((a, b) {
+      final aNormalized = _normalizeText(a.name);
+      final bNormalized = _normalizeText(b.name);
+      
+      final aStartsWith = aNormalized.startsWith(normalizedQuery);
+      final bStartsWith = bNormalized.startsWith(normalizedQuery);
+      
+      if (aStartsWith && !bStartsWith) return -1;
+      if (!aStartsWith && bStartsWith) return 1;
+      
+      return aNormalized.compareTo(bNormalized);
+    });
+
+    setState(() {
+      _filteredCategories = filtered;
+    });
+  }
+
   void _navigateToCategory(Category category) {
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -124,7 +200,8 @@ class _CategoriesPageState extends State<CategoriesPage> with AutomaticKeepAlive
         child: Column(
           children: [
             _buildHeader(isDarkMode),
-            SizedBox(height: 20),
+            _buildSearchBar(isDarkMode),
+            SizedBox(height: 16),
             Expanded(child: _buildContent(isDarkMode)),
           ],
         ),
@@ -152,7 +229,7 @@ class _CategoriesPageState extends State<CategoriesPage> with AutomaticKeepAlive
             ),
           ),
           Spacer(),
-          if (!_isLoading && _categories.isNotEmpty)
+          if (!_isLoading && _filteredCategories.isNotEmpty)
             Container(
               padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
@@ -160,7 +237,7 @@ class _CategoriesPageState extends State<CategoriesPage> with AutomaticKeepAlive
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Text(
-                '${_categories.length}',
+                '${_filteredCategories.length}${_searchController.text.isNotEmpty ? '/${_allCategories.length}' : ''}',
                 style: TextStyle(
                   color: isDarkMode ? AppColors.primaryLight : AppColors.primary,
                   fontWeight: FontWeight.w600,
@@ -173,16 +250,140 @@ class _CategoriesPageState extends State<CategoriesPage> with AutomaticKeepAlive
     );
   }
 
+  Widget _buildSearchBar(bool isDarkMode) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: isDarkMode ? AppColors.backgroundDark.withOpacity(0.8) : Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isDarkMode ? AppColors.borderDark : AppColors.divider,
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.search,
+            color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary,
+            size: 20,
+          ),
+          SizedBox(width: 12),
+          Expanded(
+            child: TextField(
+              controller: _searchController,
+              focusNode: _searchFocusNode,
+              style: TextStyle(
+                fontSize: 16,
+                color: isDarkMode ? AppColors.textWhite : AppColors.textPrimary,
+              ),
+              decoration: InputDecoration(
+                hintText: 'Buscar categorías...',
+                hintStyle: TextStyle(
+                  color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary,
+                ),
+                border: InputBorder.none,
+                contentPadding: EdgeInsets.symmetric(vertical: 12),
+              ),
+            ),
+          ),
+          if (_searchController.text.isNotEmpty)
+            IconButton(
+              onPressed: () {
+                _searchController.clear();
+                _searchFocusNode.unfocus();
+              },
+              icon: Icon(
+                Icons.clear,
+                color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary,
+                size: 20,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildContent(bool isDarkMode) {
     if (_isLoading) {
       return _buildLoadingState(isDarkMode);
     }
 
-    if (_categories.isEmpty) {
+    if (_allCategories.isEmpty) {
       return _buildEmptyState(isDarkMode);
     }
 
+    if (_filteredCategories.isEmpty && _searchController.text.isNotEmpty) {
+      return _buildNoResultsState(isDarkMode);
+    }
+
     return _buildCategoriesList(isDarkMode);
+  }
+
+  Widget _buildNoResultsState(bool isDarkMode) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.search_off,
+              size: 64,
+              color: (isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary).withOpacity(0.5),
+            ),
+            SizedBox(height: 24),
+            Text(
+              'No se encontraron categorías',
+              style: TextStyle(
+                fontSize: 20,
+                color: isDarkMode ? AppColors.textWhite : AppColors.textPrimary,
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 12),
+            Text(
+              'Intenta con otros términos de búsqueda',
+              style: TextStyle(
+                fontSize: 16,
+                color: isDarkMode ? AppColors.textWhiteSecondary : AppColors.textSecondary,
+                height: 1.4,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 24),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: (isDarkMode ? AppColors.primaryLight : AppColors.primary).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: (isDarkMode ? AppColors.primaryLight : AppColors.primary).withOpacity(0.3),
+                  width: 1,
+                ),
+              ),
+              child: Text(
+                'Buscando en ${_allCategories.length} categorías',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: isDarkMode ? AppColors.primaryLight : AppColors.primary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildLoadingState(bool isDarkMode) {
@@ -278,13 +479,13 @@ class _CategoriesPageState extends State<CategoriesPage> with AutomaticKeepAlive
   Widget _buildCategoriesList(bool isDarkMode) {
     return ListView.separated(
       padding: EdgeInsets.symmetric(horizontal: 20),
-      itemCount: _categories.length,
+      itemCount: _filteredCategories.length,
       separatorBuilder: (context, index) => Divider(
         height: 1,
         color: isDarkMode ? AppColors.borderDark : AppColors.divider,
       ),
       itemBuilder: (context, index) {
-        final category = _categories[index];
+        final category = _filteredCategories[index];
         return ListTile(
           contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 0),
           leading: Container(
