@@ -37,7 +37,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
     // Esperar un frame antes de iniciar el carrusel para asegurar que el widget esté completamente construido
     WidgetsBinding.instance.addPostFrameCallback((_) {
       print('PostFrameCallback ejecutado'); // Debug básico
-      _startCarousel();
+      //_startCarousel();
     });
   }
 

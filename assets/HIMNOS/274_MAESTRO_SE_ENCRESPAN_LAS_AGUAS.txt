@@ -2,7 +2,7 @@ MAESTRO, SE ENCRESPAN LAS AGUAS
 
 INDEFINIDO 
 
-1 
+1. 
 Maestro, se encrespan las aguas  
 Y ruge la tempestad; 
 Los grandes abismos del cielo 
@@ -24,7 +24,7 @@ Doquier se cumple tu voluntad,
 Tu voz resuena en la inmensidad: 
 "¡Sea la paz!" 
 
-2 
+2. 
 Maestro, mi ser angustiado 
 Te busca con ansiedad. 
 De mi alma en los antros profundos 
@@ -34,7 +34,7 @@ Sobre mi frágil ser,
 Y perezco, perezco, Maestro, 
 ¡Oh quiéreme socorrer! 
  
-3 
+3. 
 Maestro, pasó la tormenta,  
 Los vientos no rugen ya,  
 Y sobre el cristal de las aguas 

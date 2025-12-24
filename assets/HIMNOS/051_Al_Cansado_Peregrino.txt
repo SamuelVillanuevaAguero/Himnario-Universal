@@ -2,7 +2,7 @@ AL CANSADO PEREGRINO
 
 INDEFINIDO
 
-1 
+1. 
 Al cansado peregrino 
 Que en el pecho siente fe, 
 El Señor ha prometido: 
@@ -12,7 +12,7 @@ Con mi brazo te guiaré.
 El Señor ha prometido: 
 “Con mi brazo te guiaré”. 
 
-2 
+2. 
 Cuando cruel su lazo el mundo 
 Arrojare ante tu pie, 
 Te dirá Dios, tu refugio: 
@@ -22,7 +22,7 @@ Con mi brazo te guiaré.
 Te dirá Dios, tu refugio, 
 “Con mi brazo te guiaré”. 
 
-3 
+3. 
 Si perdiste la esperanza 
 Como sombra que se fue, 
 Oye atento la promesa: 
@@ -32,7 +32,7 @@ Con mi brazo te guiaré.
 Oye atento la promesa: 
 “Con mi brazo te guiaré”. 
 
-4 
+4. 
 Cuando mires que a tu estancia 
 Ya la muerte, entrando esté, 
 Ten consuelo en las palabras: 
@@ -40,4 +40,4 @@ Ten consuelo en las palabras:
 Con mi brazo, con mi brazo, 
 Con mi brazo te guiaré. 
 Ten consuelo en las palabras: 
-“Con mi brazo te guiaré”.
+“Con mi brazo te guiaré”. 

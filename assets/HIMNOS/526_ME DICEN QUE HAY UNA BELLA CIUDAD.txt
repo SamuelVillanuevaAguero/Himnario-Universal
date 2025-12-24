@@ -2,7 +2,7 @@ ME DICEN QUE HAY UNA BELLA CIUDAD
 
 INDEFINIDO
 
-1 
+1. 
 Me dicen que hay una bella Ciudad, allí quiero ir, ¿y tú? 
 En donde es eterna la felicidad, allí quiero ir, ¿y tú? 
 Jesús las Mansiones nos fue a preparar, allí quiero ir, 
@@ -13,7 +13,7 @@ CORO:
 :Allí quiero ir, allí quiero ir,  
 Allí quiero ir ¿y tú?: 
 
-2 
+2. 
 De perlas sus puertas, su mar de cristal, 
 Allí quiero ir ¿y tú? 
 Es Cristo la luz del país celestial, 
@@ -23,7 +23,7 @@ Allí quiero ir, ¿y tú?
 En donde terminan congojas y afán. 
 Allí quiero ir ¿y tú? 
 
-3 
+3. 
 Y cuando navegue la nave de Sión,  
 Allí quiero ir, ¿y tú? 
 Al darse a la vela, para esa mansión,  

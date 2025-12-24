@@ -2,7 +2,7 @@ DEL SEPULCRO TENEBROSO
 
 INDEFINIDO 
 
-1 
+1. 
 Del sepulcro tenebroso 
 El Señor se levantó, 
 Y las ligas de la muerte 
@@ -18,7 +18,7 @@ Vacío el lugar,
 En donde amigos fieles 
 Le hicieron descansar. 
  
-2 
+2. 
 Como el grano de semilla 
 En la tierra debe entrar, 
 Nuestros cuerpos igualmente 
@@ -28,7 +28,7 @@ En las nubes la señal,
 Cuando la final trompeta 
 Llame a todos por igual. 
  
-3 
+3. 
 A los fieles Cristo llama  
 A su lado siempre estar,  
 Y con El por las edades  
