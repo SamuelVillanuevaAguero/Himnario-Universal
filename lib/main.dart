@@ -1,73 +1,86 @@
 import 'package:flutter/material.dart';
-import 'screens/main_navigation.dart';
-import '../constants/app_colors.dart';
+import 'package:provider/provider.dart';
+import 'package:provider/single_child_widget.dart';
+
+// Configuración
+import 'configuracion/temas/tema_app.dart';
+
+// Repositorios
+import 'datos/repositorios/repositorio_himnos.dart';
+import 'datos/repositorios/repositorio_favoritos.dart';
+import 'datos/repositorios/repositorio_categorias.dart';
+import 'datos/repositorios/repositorio_audios.dart';
+
+// Providers
+import 'presentacion/providers/provider_himnos.dart';
+import 'presentacion/providers/provider_reproductor_audio.dart';
+import 'presentacion/providers/provider_categorias.dart';
+
+// Pantallas
+import 'presentacion/pantallas/navegacion/navegacion_principal.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const AplicacionHimnario());
 }
 
-class MyApp extends StatelessWidget {
+/// Aplicación principal del Himnario Universal
+class AplicacionHimnario extends StatelessWidget {
+  const AplicacionHimnario({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Himnario Universal',
-      
-      // Tema claro
-      theme: ThemeData(
-        primarySwatch: AppColors.createMaterialColor(AppColors.primary),
-        colorScheme: AppColors.lightColorScheme,
-        scaffoldBackgroundColor: AppColors.backgroundPrimary,
-        appBarTheme: AppBarTheme(
-          backgroundColor: AppColors.primary,
-          foregroundColor: AppColors.textWhite,
-          elevation: 0,
-        ),
-        cardTheme: CardThemeData(
-          color: AppColors.backgroundSecondary,
-          elevation: 2,
-        ),
-        textTheme: TextTheme(
-          bodyLarge: TextStyle(color: AppColors.textPrimary),
-          bodyMedium: TextStyle(color: AppColors.textSecondary),
-          titleLarge: TextStyle(color: AppColors.textPrimary),
-        ),
-        iconTheme: IconThemeData(
-          color: AppColors.textSecondary,
-        ),
-        dividerColor: AppColors.divider,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
+    return MultiProvider(
+      providers: _crearProviders(),
+      child: MaterialApp(
+        title: 'Himnario Universal',
+        debugShowCheckedModeBanner: false,
+        
+        // Temas
+        theme: TemaApp.temaClaro,
+        darkTheme: TemaApp.temaOscuro,
+        themeMode: ThemeMode.system,
+        
+        // Pantalla inicial
+        home: const NavegacionPrincipal(),
       ),
-      
-      // Tema oscuro
-      darkTheme: ThemeData(
-        primarySwatch: AppColors.createMaterialColor(AppColors.primaryLight),
-        colorScheme: AppColors.darkColorScheme,
-        scaffoldBackgroundColor: AppColors.backgroundDark,
-        appBarTheme: AppBarTheme(
-          backgroundColor: AppColors.backgroundCard,
-          foregroundColor: AppColors.textWhite,
-          elevation: 0,
-        ),
-        cardTheme: CardThemeData(
-          color: AppColors.backgroundCard,
-          elevation: 2,
-        ),
-        textTheme: TextTheme(
-          bodyLarge: TextStyle(color: AppColors.textWhite),
-          bodyMedium: TextStyle(color: AppColors.textWhiteSecondary),
-          titleLarge: TextStyle(color: AppColors.textWhite),
-        ),
-        iconTheme: IconThemeData(
-          color: AppColors.textWhiteSecondary,
-        ),
-        dividerColor: AppColors.borderDark,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      
-      themeMode: ThemeMode.system,
-      
-      home: MainNavigation(),
-      debugShowCheckedModeBanner: false,
     );
+  }
+
+  /// Crea y configura todos los providers de la aplicación
+  List<SingleChildWidget> _crearProviders() {
+    // Crear instancias de repositorios
+    final repositorioAudios = RepositorioAudios();
+    final repositorioFavoritos = RepositorioFavoritos();
+    final repositorioHimnos = RepositorioHimnos(
+      repositorioAudios: repositorioAudios,
+    );
+    final repositorioCategorias = RepositorioCategorias();
+
+    return [
+      // Repositorios (para acceso directo si es necesario)
+      Provider<RepositorioHimnos>.value(value: repositorioHimnos),
+      Provider<RepositorioFavoritos>.value(value: repositorioFavoritos),
+      Provider<RepositorioCategorias>.value(value: repositorioCategorias),
+      Provider<RepositorioAudios>.value(value: repositorioAudios),
+      
+      // Providers con ChangeNotifier
+      ChangeNotifierProvider(
+        create: (_) => ProviderHimnos(
+          repositorioHimnos: repositorioHimnos,
+          repositorioFavoritos: repositorioFavoritos,
+        ),
+      ),
+      
+      ChangeNotifierProvider(
+        create: (_) => ProviderReproductorAudio(),
+      ),
+      
+      ChangeNotifierProvider(
+        create: (_) => ProviderCategorias(
+          repositorioCategorias: repositorioCategorias,
+          repositorioHimnos: repositorioHimnos,
+        ),
+      ),
+    ];
   }
 }
