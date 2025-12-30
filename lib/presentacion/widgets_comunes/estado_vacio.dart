@@ -23,10 +23,11 @@ class EstadoVacio extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               icono,
@@ -63,7 +64,7 @@ class EstadoVacio extends StatelessWidget {
               ),
             ],
             if (mensajeInformativo != null) ...[
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,

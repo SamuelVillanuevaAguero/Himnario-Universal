@@ -37,28 +37,15 @@ class _BarraBusquedaCategoriasState extends State<BarraBusquedaCategorias> {
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
         color: esModoOscuro 
-            ? ColoresApp.fondoOscuro.withOpacity(0.8) 
-            : Colors.white,
+            ? const Color(0xFF2C2C2C)
+            : const Color(0xFFF5F5F5),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: esModoOscuro 
-              ? ColoresApp.bordeOscuro 
-              : ColoresApp.divisor,
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       child: Row(
         children: [
+          const SizedBox(width: 15),
           Icon(
             Icons.search,
             color: esModoOscuro 
@@ -66,40 +53,47 @@ class _BarraBusquedaCategoriasState extends State<BarraBusquedaCategorias> {
                 : ColoresApp.textoSecundario,
             size: 20,
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 10),
           Expanded(
             child: TextField(
               controller: _controlador,
               onChanged: _alBuscar,
-              style: TextStyle(
-                fontSize: 16,
-                color: esModoOscuro 
-                    ? ColoresApp.textoBlanco 
-                    : ColoresApp.textoPrimario,
-              ),
               decoration: InputDecoration(
                 hintText: ConstantesApp.hintBusquedaCategorias,
                 hintStyle: TextStyle(
                   color: esModoOscuro 
                       ? ColoresApp.textoBlancoSecundario 
                       : ColoresApp.textoSecundario,
+                  fontSize: 16,
                 ),
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                contentPadding: const EdgeInsets.symmetric(vertical: 15),
+              ),
+              style: TextStyle(
+                fontSize: 16,
+                color: esModoOscuro 
+                    ? ColoresApp.textoBlanco 
+                    : ColoresApp.textoPrimario,
               ),
             ),
           ),
           if (_controlador.text.isNotEmpty)
-            IconButton(
-              onPressed: _limpiarBusqueda,
-              icon: Icon(
-                Icons.clear,
-                color: esModoOscuro 
-                    ? ColoresApp.textoBlancoSecundario 
-                    : ColoresApp.textoSecundario,
-                size: 20,
+            GestureDetector(
+              onTap: _limpiarBusqueda,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Icon(
+                  Icons.close,
+                  color: esModoOscuro 
+                      ? ColoresApp.textoBlancoSecundario 
+                      : ColoresApp.textoSecundario,
+                  size: 20,
+                ),
               ),
             ),
+          const SizedBox(width: 5),
         ],
       ),
     );

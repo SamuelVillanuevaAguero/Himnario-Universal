@@ -38,14 +38,9 @@ class _BarraBusquedaState extends State<BarraBusqueda> {
       margin: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
         color: esModoOscuro 
-            ? ColoresApp.fondoTarjeta 
-            : ColoresApp.fondoSecundario,
-        borderRadius: BorderRadius.circular(25),
-        border: Border.all(
-          color: esModoOscuro 
-              ? ColoresApp.bordeOscuro 
-              : ColoresApp.divisor,
-        ),
+            ? const Color(0xFF2C2C2C)
+            : const Color(0xFFF5F5F5),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         children: [
@@ -71,7 +66,9 @@ class _BarraBusquedaState extends State<BarraBusqueda> {
                   fontSize: 16,
                 ),
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                contentPadding: const EdgeInsets.symmetric(vertical: 15),
               ),
               style: TextStyle(
                 fontSize: 16,
