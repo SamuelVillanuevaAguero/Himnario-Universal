@@ -3,6 +3,7 @@ import '/../../configuracion/temas/colores_app.dart';
 import '../../pantallas/inicio/pantalla_inicio.dart';
 import '../../pantallas/favoritos/pantalla_favoritos.dart';
 import '../../pantallas/categorias/pantalla_categorias.dart';
+import '../../pantallas/acerca_de/pantalla_acerca_de.dart';
 
 /// Pantalla principal con navegación inferior entre secciones
 class NavegacionPrincipal extends StatefulWidget {
@@ -20,6 +21,7 @@ class _NavegacionPrincipalState extends State<NavegacionPrincipal> {
     PantallaInicio(),
     PantallaFavoritos(),
     PantallaCategorias(),
+    PantallaAcercaDe(),
   ];
 
   @override
@@ -94,6 +96,11 @@ class _NavegacionPrincipalState extends State<NavegacionPrincipal> {
             icon: Icon(Icons.category_outlined),
             activeIcon: Icon(Icons.category),
             label: 'Categorías',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.info_outline),
+            activeIcon: Icon(Icons.info),
+            label: 'Acerca de',
           ),
         ],
       ),

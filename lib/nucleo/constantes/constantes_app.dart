@@ -56,11 +56,26 @@ class ConstantesApp {
   static const String tituloInicio = 'Himnos | Universal';
   static const String tituloFavoritos = 'Mis Favoritos';
   static const String tituloCategorias = 'Categorías';
+  static const String tituloAcercaDe = 'Acerca de';
 
   // Navegación
   static const String labelNavHimnos = 'Himnos';
   static const String labelNavFavoritos = 'Favoritos';
   static const String labelNavCategorias = 'Categorías';
+  static const String labelNavAcercaDe = 'Acerca de';
+
+  // Información de la aplicación
+  static const String nombreApp = 'Himnario Universal';
+  static const String versionApp = '1.0.0';
+  static const String fechaActualizacion = 'Diciembre 2024';
+  static const String descripcionApp = 
+      'Himnario Universal es una aplicación móvil diseñada para llevar la alabanza '
+      'y adoración a donde quiera que vayas, esta app te permite acceder fácilmente a las letras, escuchar '
+      'los audios disponibles y organizar tus himnos favoritos.';
+  static const String propostoApp =
+      'El propósito de esta aplicación es solo ser una herramienta de apoyo, '
+      'pedimos encarecidamente que no sea utilizada como sustituto del himnario fisico de la iglesia universal.';
+  static const String telefonoContacto = '+52 734 155 3474';
 
   // Versículo del carrusel
   static const String versiculoTexto =
