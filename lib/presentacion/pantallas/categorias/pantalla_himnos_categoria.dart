@@ -143,9 +143,7 @@ class _PantallaHimnosCategoriaState extends State<PantallaHimnosCategoria> {
 
             return Container(
               decoration: BoxDecoration(
-                color: esModoOscuro
-                    ? ColoresApp.fondoTarjeta.withOpacity(0.3)
-                    : Colors.transparent,
+                color: Colors.transparent,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: TarjetaHimno(
