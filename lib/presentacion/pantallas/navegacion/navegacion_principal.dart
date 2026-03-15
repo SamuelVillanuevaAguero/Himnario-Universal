@@ -4,6 +4,7 @@ import '../../pantallas/inicio/pantalla_inicio.dart';
 import '../../pantallas/favoritos/pantalla_favoritos.dart';
 import '../../pantallas/categorias/pantalla_categorias.dart';
 import '../../pantallas/acerca_de/pantalla_acerca_de.dart';
+import '../../pantallas/agente/pantalla_agente.dart';
 
 /// Pantalla principal con navegación inferior entre secciones
 class NavegacionPrincipal extends StatefulWidget {
@@ -20,8 +21,9 @@ class _NavegacionPrincipalState extends State<NavegacionPrincipal> {
   final List<Widget> _paginas = const [
     PantallaInicio(),
     PantallaFavoritos(),
+    PantallaAgente(),
     PantallaCategorias(),
-    PantallaAcercaDe(),
+    PantallaAcercaDe()
   ];
 
   @override
@@ -91,6 +93,11 @@ class _NavegacionPrincipalState extends State<NavegacionPrincipal> {
             icon: Icon(Icons.favorite_border),
             activeIcon: Icon(Icons.favorite),
             label: 'Favoritos',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.auto_awesome_outlined),
+            activeIcon: Icon(Icons.auto_awesome),
+            label: 'Asistente',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.category_outlined),

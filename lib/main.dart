@@ -18,6 +18,7 @@ import 'datos/servicios/servicio_terminos_condiciones.dart';
 import 'presentacion/providers/provider_himnos.dart';
 import 'presentacion/providers/provider_reproductor_audio.dart';
 import 'presentacion/providers/provider_categorias.dart';
+import 'presentacion/providers/provider_agente.dart';
 
 // Pantallas
 import 'presentacion/pantallas/navegacion/navegacion_principal.dart';
@@ -88,6 +89,9 @@ class AplicacionHimnario extends StatelessWidget {
           repositorioHimnos: repositorioHimnos,
         ),
       ),
+      ChangeNotifierProvider(
+        create: (_) => ProviderAgente(),
+      )
     ];
   }
 }
