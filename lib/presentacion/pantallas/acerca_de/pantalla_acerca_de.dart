@@ -398,19 +398,6 @@ class PantallaAcercaDe extends StatelessWidget {
             valor: ConstantesApp.fechaActualizacion,
             esModoOscuro: esModoOscuro,
           ),
-          const SizedBox(height: 15),
-          Divider(
-            color: esModoOscuro 
-                ? ColoresApp.bordeOscuro 
-                : ColoresApp.divisor,
-          ),
-          const SizedBox(height: 15),
-          _construirItemVersion(
-            icono: Icons.code,
-            titulo: 'Desarrollado con',
-            valor: 'Flutter',
-            esModoOscuro: esModoOscuro,
-          ),
         ],
       ),
     );

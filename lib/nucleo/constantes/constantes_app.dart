@@ -67,7 +67,7 @@ class ConstantesApp {
   // Información de la aplicación
   static const String nombreApp = 'Himnario Universal';
   static const String versionApp = '1.0.0';
-  static const String fechaActualizacion = 'Diciembre 2024';
+  static const String fechaActualizacion = 'Enero 2025';
   static const String descripcionApp = 
       'Himnario Universal es una aplicación móvil diseñada para llevar la alabanza '
       'y adoración a donde quiera que vayas, esta app te permite acceder fácilmente a las letras, escuchar '

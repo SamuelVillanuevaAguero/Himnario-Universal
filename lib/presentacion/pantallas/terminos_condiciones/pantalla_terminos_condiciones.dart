@@ -161,8 +161,7 @@ class _PantallaTerminosCondicionesState
             
             _construirPunto(
               esModoOscuro: esModoOscuro,
-              texto: 'El contenido de himnos, letras y audios pertenece a la Iglesia Universal '
-                  'del Reino de Dios.',
+              texto: 'El contenido de himnos, letras y audios pertenece a la Iglesia Universal. '
             ),
             const SizedBox(height: 16),
             
