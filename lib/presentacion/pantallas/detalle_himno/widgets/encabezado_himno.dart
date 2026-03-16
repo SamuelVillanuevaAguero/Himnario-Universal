@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'boton_notas.dart';
 import '/../../../configuracion/temas/colores_app.dart';
 import '/../../../nucleo/constantes/constantes_app.dart';
 import '/../../../datos/modelos/himno.dart';
@@ -87,6 +88,10 @@ class EncabezadoHimno extends StatelessWidget {
             ),
           ),
           _construirBotonFavorito(context),
+          BotonNotas(
+          numeroHimno: himno.numero,
+          esModoOscuro: esModoOscuro,
+        )
         ],
       ),
     );

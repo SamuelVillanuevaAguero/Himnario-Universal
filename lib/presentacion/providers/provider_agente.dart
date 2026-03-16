@@ -153,7 +153,9 @@ class ProviderAgente extends ChangeNotifier {
 
   Future<void> enviarMensaje(String texto) async {
     if (_estadoChat != EstadoChat.inactivo) return;
-    if (_hiloActivo == null) return;
+    if (_hiloActivo == null) {
+      await crearHilo();
+    }
 
     _mensajesRestantes = await _api.verificarLimiteDiario();
     if (_mensajesRestantes <= 0) {

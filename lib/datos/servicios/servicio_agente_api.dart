@@ -25,7 +25,7 @@ class ServicioAgenteApi {
 
   static const String _claveMensajesDiarios = 'daily_message_count';
   static const String _claveUltimoReset = 'last_reset_date';
-  static const int _limiteDiario = 20;
+  static const int _limiteDiario = 10;
   static const int _maxReintentos = 2;
   static const Duration _esperaReintento = Duration(seconds: 3);
 
