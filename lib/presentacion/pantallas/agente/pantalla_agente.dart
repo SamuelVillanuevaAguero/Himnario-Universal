@@ -5,8 +5,8 @@ import '../../providers/provider_agente.dart';
 import 'widgets/burbuja_chat.dart';
 import 'widgets/indicador_escribiendo.dart';
 import 'widgets/barra_entrada_chat.dart';
+import 'widgets/drawer_hilos.dart';
 
-/// Pantalla del asistente eclesiástico con chat SSE
 class PantallaAgente extends StatefulWidget {
   const PantallaAgente({Key? key}) : super(key: key);
 
@@ -19,28 +19,38 @@ class _PantallaAgenteState extends State<PantallaAgente>
   @override
   bool get wantKeepAlive => true;
 
-  final ScrollController _scrollController = ScrollController();
+  final _scroll = ScrollController();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ProviderAgente>().inicializar();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final provider = context.read<ProviderAgente>();
+      await provider.inicializar();
+      // Si no hay hilos o ninguno activo, crear uno
+      if (provider.hiloActivo == null) {
+        if (provider.hilos.isNotEmpty) {
+          await provider.abrirHilo(provider.hilos.first.threadId);
+        } else {
+          await provider.crearHilo();
+        }
+      }
     });
   }
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    _scroll.dispose();
     super.dispose();
   }
 
   void _scrollAlFinal() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
+      if (_scroll.hasClients) {
+        _scroll.animateTo(
+          _scroll.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 280),
           curve: Curves.easeOut,
         );
       }
@@ -50,40 +60,41 @@ class _PantallaAgenteState extends State<PantallaAgente>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final esModoOscuro = Theme.of(context).brightness == Brightness.dark;
+    final dark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor:
-          esModoOscuro ? ColoresApp.fondoOscuro : ColoresApp.fondoPrimario,
+          dark ? ColoresApp.fondoOscuro : ColoresApp.fondoPrimario,
+      drawer: const DrawerHilos(),
       body: SafeArea(
         child: Column(
           children: [
-            _construirEncabezado(esModoOscuro),
+            _Encabezado(
+              scaffoldKey: _scaffoldKey,
+              dark: dark,
+            ),
             Expanded(
               child: Consumer<ProviderAgente>(
-                builder: (context, provider, _) {
-                  // Auto-scroll cuando llegan mensajes nuevos
+                builder: (ctx, provider, _) {
                   if (provider.estaActivo) _scrollAlFinal();
-
                   return Column(
                     children: [
                       Expanded(
-                        child: _construirListaMensajes(provider, esModoOscuro),
-                      ),
-                      // Indicador de herramienta en uso
-                      if (provider.estado ==
-                          EstadoAgente.consultandoHerramienta)
-                        IndicadorEscribiendo(esModoOscuro: esModoOscuro),
-                      // Error
-                      if (provider.mensajeError != null)
-                        _construirBannerError(provider, esModoOscuro),
+                          child: _CuerpoChat(
+                              scroll: _scroll, dark: dark)),
+                      if (provider.estadoChat ==
+                          EstadoChat.consultandoHerramienta)
+                        IndicadorEscribiendo(esModoOscuro: dark),
+                      if (provider.errorMensaje != null)
+                        _BannerError(dark: dark),
                     ],
                   );
                 },
               ),
             ),
             BarraEntradaChat(
-              esModoOscuro: esModoOscuro,
+              esModoOscuro: dark,
               onEnviar: (texto) async {
                 await context.read<ProviderAgente>().enviarMensaje(texto);
                 _scrollAlFinal();
@@ -94,306 +105,299 @@ class _PantallaAgenteState extends State<PantallaAgente>
       ),
     );
   }
+}
 
-  Widget _construirEncabezado(bool esModoOscuro) {
+// ─── Encabezado ───────────────────────────────────────────────────────────────
+
+class _Encabezado extends StatelessWidget {
+  final GlobalKey<ScaffoldState> scaffoldKey;
+  final bool dark;
+  const _Encabezado({required this.scaffoldKey, required this.dark});
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
       decoration: BoxDecoration(
-        color:
-            esModoOscuro ? ColoresApp.fondoOscuro : ColoresApp.fondoPrimario,
+        color: dark ? ColoresApp.fondoOscuro : ColoresApp.fondoPrimario,
         border: Border(
           bottom: BorderSide(
-            color: esModoOscuro ? ColoresApp.bordeOscuro : ColoresApp.borde,
-            width: 1,
-          ),
+              color: dark ? ColoresApp.bordeOscuro : ColoresApp.borde),
         ),
       ),
       child: Row(
         children: [
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: esModoOscuro
-                    ? [const Color(0xFF1565C0), const Color(0xFF42A5F5)]
-                    : [const Color(0xFF1976D2), const Color(0xFF64B5F6)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              Icons.auto_awesome,
-              color: Colors.white,
-              size: 22,
-            ),
+          IconButton(
+            onPressed: () => scaffoldKey.currentState?.openDrawer(),
+            icon: Icon(Icons.menu_rounded,
+                color: dark ? Colors.white : ColoresApp.textoPrimario),
           ),
-          const SizedBox(width: 12),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Asistente Eclesiástico',
-                  style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w700,
-                    color: esModoOscuro
-                        ? ColoresApp.textoBlanco
-                        : ColoresApp.textoPrimario,
-                    letterSpacing: 0.2,
-                  ),
-                ),
-                Consumer<ProviderAgente>(
-                  builder: (context, provider, _) {
-                    final restantes = provider.mensajesRestantes;
-                    return Text(
-                      restantes > 0
-                          ? '$restantes mensajes disponibles hoy'
-                          : 'Límite diario alcanzado',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: restantes > 5
-                            ? (esModoOscuro
-                                ? ColoresApp.textoBlancoSecundario
-                                : ColoresApp.textoSecundario)
-                            : Colors.orange,
-                        fontWeight: FontWeight.w500,
+            child: Consumer<ProviderAgente>(
+              builder: (_, provider, __) {
+                final titulo =
+                    provider.hiloActivo?.title ?? 'Asistente';
+                return GestureDetector(
+                  onTap: () => scaffoldKey.currentState?.openDrawer(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 7,
+                            height: 7,
+                            decoration: BoxDecoration(
+                              color: dark
+                                  ? ColoresApp.primarioClaro
+                                  : ColoresApp.primario,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Flexible(
+                            child: Text(
+                              titulo,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: dark
+                                    ? Colors.white
+                                    : ColoresApp.textoPrimario,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 3),
+                          Icon(Icons.keyboard_arrow_down,
+                              size: 15,
+                              color: dark
+                                  ? ColoresApp.textoBlancoSecundario
+                                  : ColoresApp.textoSecundario),
+                        ],
                       ),
-                    );
-                  },
-                ),
-              ],
+                      Text(
+                        provider.mensajesRestantes > 0
+                            ? '${provider.mensajesRestantes} mensajes hoy'
+                            : 'Límite alcanzado',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: provider.mensajesRestantes > 5
+                              ? (dark
+                                  ? ColoresApp.textoBlancoSecundario
+                                  : ColoresApp.textoSecundario)
+                              : Colors.orange,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
           ),
-          Consumer<ProviderAgente>(
-            builder: (context, provider, _) => IconButton(
-              onPressed: () => _mostrarDialogoLimpiar(context, provider),
-              icon: Icon(
-                Icons.delete_sweep_outlined,
-                color: esModoOscuro
+          // Nueva conversación rápida
+          IconButton(
+            onPressed: () async {
+              await context.read<ProviderAgente>().crearHilo();
+            },
+            icon: Icon(Icons.add_comment_outlined,
+                size: 20,
+                color: dark
                     ? ColoresApp.textoBlancoSecundario
-                    : ColoresApp.textoSecundario,
-                size: 22,
-              ),
-              tooltip: 'Limpiar conversación',
-            ),
+                    : ColoresApp.textoSecundario),
+            tooltip: 'Nueva conversación',
           ),
         ],
       ),
     );
   }
+}
 
-  Widget _construirListaMensajes(
-      ProviderAgente provider, bool esModoOscuro) {
-    if (!provider.inicializado) {
-      return Center(
-        child: CircularProgressIndicator(
-          color: esModoOscuro ? ColoresApp.primarioClaro : ColoresApp.primario,
-        ),
-      );
-    }
+// ─── Cuerpo del chat ──────────────────────────────────────────────────────────
 
-    if (provider.mensajes.isEmpty) {
-      return _construirEstadoVacio(esModoOscuro);
-    }
+class _CuerpoChat extends StatelessWidget {
+  final ScrollController scroll;
+  final bool dark;
+  const _CuerpoChat({required this.scroll, required this.dark});
 
-    return ListView.builder(
-      controller: _scrollController,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      itemCount: provider.mensajes.length,
-      itemBuilder: (context, index) {
-        final msg = provider.mensajes[index];
-        return BurbujaChat(
-          mensaje: msg,
-          esModoOscuro: esModoOscuro,
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<ProviderAgente>(
+      builder: (_, provider, __) {
+        if (!provider.inicializado) {
+          return Center(
+            child: CircularProgressIndicator(
+              color: dark
+                  ? ColoresApp.primarioClaro
+                  : ColoresApp.primario,
+            ),
+          );
+        }
+
+        if (provider.mensajesActivos.isEmpty) {
+          return _EstadoVacio(dark: dark);
+        }
+
+        return ListView.builder(
+          controller: scroll,
+          padding: const EdgeInsets.symmetric(
+              horizontal: 16, vertical: 12),
+          itemCount: provider.mensajesActivos.length,
+          itemBuilder: (_, i) => BurbujaChat(
+            mensaje: provider.mensajesActivos[i],
+            esModoOscuro: dark,
+          ),
         );
       },
     );
   }
+}
 
-  Widget _construirEstadoVacio(bool esModoOscuro) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: (esModoOscuro
-                        ? ColoresApp.primarioClaro
-                        : ColoresApp.primario)
-                    .withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.church_outlined,
-                size: 40,
-                color: esModoOscuro
+// ─── Estado vacío ─────────────────────────────────────────────────────────────
+
+class _EstadoVacio extends StatelessWidget {
+  final bool dark;
+  const _EstadoVacio({required this.dark});
+
+  static const _sugerencias = [
+    '¿Qué himnos puedo cantar en Navidad?',
+    'Necesito un himno para un funeral',
+    '¿Hay himnos sobre la esperanza?',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const SizedBox(height: 20),
+          Container(
+            width: 68,
+            height: 68,
+            decoration: BoxDecoration(
+              color: (dark
+                      ? ColoresApp.primarioClaro
+                      : ColoresApp.primario)
+                  .withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.church_outlined,
+                size: 34,
+                color: dark
                     ? ColoresApp.primarioClaro
-                    : ColoresApp.primario,
+                    : ColoresApp.primario),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            '¡Paz de Dios, hermano/hermana!',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: dark ? Colors.white : ColoresApp.textoPrimario,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Pregúntame sobre himnos para ocasiones especiales, '
+            'fiestas, o busca la letra de un himno.',
+            style: TextStyle(
+              fontSize: 13,
+              color: dark
+                  ? ColoresApp.textoBlancoSecundario
+                  : ColoresApp.textoSecundario,
+              height: 1.5,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 22),
+          ..._sugerencias.map(
+            (s) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: InkWell(
+                onTap: () =>
+                    context.read<ProviderAgente>().enviarMensaje(s),
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: (dark
+                            ? ColoresApp.primarioClaro
+                            : ColoresApp.primario)
+                        .withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: (dark
+                              ? ColoresApp.primarioClaro
+                              : ColoresApp.primario)
+                          .withOpacity(0.3),
+                    ),
+                  ),
+                  child: Text(
+                    s,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: dark
+                          ? ColoresApp.primarioClaro
+                          : ColoresApp.primario,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
               ),
             ),
-            const SizedBox(height: 20),
-            Text(
-              '¡Paz de Dios, hermano/hermana!',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: esModoOscuro
-                    ? ColoresApp.textoBlanco
-                    : ColoresApp.textoPrimario,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'Pregúntame sobre himnos para ocasiones especiales, '
-              'fiestas, temas específicos o busca la letra de un himno.',
-              style: TextStyle(
-                fontSize: 14,
-                color: esModoOscuro
-                    ? ColoresApp.textoBlancoSecundario
-                    : ColoresApp.textoSecundario,
-                height: 1.5,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            _construirSugerencias(esModoOscuro),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
+}
 
-  Widget _construirSugerencias(bool esModoOscuro) {
-    final sugerencias = [
-      '¿Qué himnos puedo cantar en Navidad?',
-      'Necesito un himno para un funeral',
-      '¿Hay himnos sobre la esperanza?',
-    ];
+// ─── Banner de error ──────────────────────────────────────────────────────────
 
-    return Column(
-      children: sugerencias.map((s) {
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: InkWell(
-            onTap: () => context.read<ProviderAgente>().enviarMensaje(s),
-            borderRadius: BorderRadius.circular(20),
-            child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              decoration: BoxDecoration(
-                color: (esModoOscuro
-                        ? ColoresApp.primarioClaro
-                        : ColoresApp.primario)
-                    .withOpacity(0.1),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: (esModoOscuro
-                          ? ColoresApp.primarioClaro
-                          : ColoresApp.primario)
-                      .withOpacity(0.3),
-                ),
+class _BannerError extends StatelessWidget {
+  final bool dark;
+  const _BannerError({required this.dark});
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<ProviderAgente>(
+      builder: (_, provider, __) {
+        if (provider.errorMensaje == null) return const SizedBox.shrink();
+        return Container(
+          margin: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+          padding:
+              const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(
+            color: Colors.red.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.red.withOpacity(0.4)),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.error_outline,
+                  color: Colors.red, size: 18),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(provider.errorMensaje!,
+                    style: const TextStyle(
+                        color: Colors.red, fontSize: 13, height: 1.3)),
               ),
-              child: Text(
-                s,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: esModoOscuro
-                      ? ColoresApp.primarioClaro
-                      : ColoresApp.primario,
-                  fontWeight: FontWeight.w500,
-                ),
-                textAlign: TextAlign.center,
+              TextButton(
+                onPressed: provider.limpiarError,
+                child: const Text('OK',
+                    style: TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.w600)),
               ),
-            ),
+            ],
           ),
         );
-      }).toList(),
-    );
-  }
-
-  Widget _construirBannerError(
-      ProviderAgente provider, bool esModoOscuro) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.red.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.red.withOpacity(0.4)),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.error_outline, color: Colors.red, size: 18),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              provider.mensajeError!,
-              style: const TextStyle(
-                  color: Colors.red, fontSize: 13, height: 1.3),
-            ),
-          ),
-          if (provider.estado == EstadoAgente.error)
-            TextButton(
-              onPressed: provider.limpiarError,
-              child: const Text('OK',
-                  style: TextStyle(
-                      color: Colors.red, fontWeight: FontWeight.w600)),
-            ),
-        ],
-      ),
-    );
-  }
-
-  void _mostrarDialogoLimpiar(
-      BuildContext context, ProviderAgente provider) {
-    final esModoOscuro = Theme.of(context).brightness == Brightness.dark;
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor:
-            esModoOscuro ? ColoresApp.fondoTarjeta : Colors.white,
-        title: Text(
-          'Limpiar conversación',
-          style: TextStyle(
-              color: esModoOscuro
-                  ? ColoresApp.textoBlanco
-                  : ColoresApp.textoPrimario),
-        ),
-        content: Text(
-          '¿Deseas eliminar el historial local de esta conversación?',
-          style: TextStyle(
-              color: esModoOscuro
-                  ? ColoresApp.textoBlancoSecundario
-                  : ColoresApp.textoSecundario),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Cancelar',
-                style: TextStyle(
-                    color: esModoOscuro
-                        ? ColoresApp.textoBlancoSecundario
-                        : ColoresApp.textoSecundario)),
-          ),
-          TextButton(
-            onPressed: () {
-              provider.limpiarHistorial();
-              Navigator.pop(context);
-            },
-            child: const Text('Limpiar',
-                style: TextStyle(
-                    color: Colors.red, fontWeight: FontWeight.w600)),
-          ),
-        ],
-      ),
+      },
     );
   }
 }

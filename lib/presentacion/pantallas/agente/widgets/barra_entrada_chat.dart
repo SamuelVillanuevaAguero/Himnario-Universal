@@ -3,46 +3,41 @@ import 'package:provider/provider.dart';
 import '../../../../configuracion/temas/colores_app.dart';
 import '../../../providers/provider_agente.dart';
 
-/// Barra inferior de entrada de texto para el chat
 class BarraEntradaChat extends StatefulWidget {
   final bool esModoOscuro;
-  final Future<void> Function(String texto) onEnviar;
+  final Future<void> Function(String) onEnviar;
 
-  const BarraEntradaChat({
-    Key? key,
-    required this.esModoOscuro,
-    required this.onEnviar,
-  }) : super(key: key);
+  const BarraEntradaChat(
+      {Key? key, required this.esModoOscuro, required this.onEnviar})
+      : super(key: key);
 
   @override
   State<BarraEntradaChat> createState() => _BarraEntradaChatState();
 }
 
 class _BarraEntradaChatState extends State<BarraEntradaChat> {
-  final TextEditingController _controlador = TextEditingController();
+  final _ctrl = TextEditingController();
   bool _tieneTexto = false;
 
   @override
   void initState() {
     super.initState();
-    _controlador.addListener(() {
-      final tiene = _controlador.text.trim().isNotEmpty;
-      if (tiene != _tieneTexto) {
-        setState(() => _tieneTexto = tiene);
-      }
+    _ctrl.addListener(() {
+      final t = _ctrl.text.trim().isNotEmpty;
+      if (t != _tieneTexto) setState(() => _tieneTexto = t);
     });
   }
 
   @override
   void dispose() {
-    _controlador.dispose();
+    _ctrl.dispose();
     super.dispose();
   }
 
   Future<void> _enviar() async {
-    final texto = _controlador.text.trim();
+    final texto = _ctrl.text.trim();
     if (texto.isEmpty) return;
-    _controlador.clear();
+    _ctrl.clear();
     setState(() => _tieneTexto = false);
     await widget.onEnviar(texto);
   }
@@ -50,9 +45,9 @@ class _BarraEntradaChatState extends State<BarraEntradaChat> {
   @override
   Widget build(BuildContext context) {
     return Consumer<ProviderAgente>(
-      builder: (context, provider, _) {
-        final bloqueado = provider.estaActivo || provider.mensajesRestantes <= 0;
-
+      builder: (_, provider, __) {
+        final bloqueado =
+            provider.estaActivo || provider.mensajesRestantes <= 0;
         return Container(
           padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
           decoration: BoxDecoration(
@@ -61,11 +56,9 @@ class _BarraEntradaChatState extends State<BarraEntradaChat> {
                 : ColoresApp.fondoPrimario,
             border: Border(
               top: BorderSide(
-                color: widget.esModoOscuro
-                    ? ColoresApp.bordeOscuro
-                    : ColoresApp.borde,
-                width: 1,
-              ),
+                  color: widget.esModoOscuro
+                      ? ColoresApp.bordeOscuro
+                      : ColoresApp.borde),
             ),
           ),
           child: Row(
@@ -76,66 +69,63 @@ class _BarraEntradaChatState extends State<BarraEntradaChat> {
                   constraints: const BoxConstraints(maxHeight: 120),
                   decoration: BoxDecoration(
                     color: widget.esModoOscuro
-                        ? const Color(0xFF2C2C2C)
+                        ? const Color(0xFF1E1E1E)
                         : const Color(0xFFF5F5F5),
                     borderRadius: BorderRadius.circular(24),
                   ),
                   child: TextField(
-                    controller: _controlador,
+                    controller: _ctrl,
                     maxLines: null,
                     enabled: !bloqueado,
-                    textInputAction: TextInputAction.newline,
-                    onSubmitted: bloqueado ? null : (_) => _enviar(),
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: widget.esModoOscuro
+                          ? Colors.white
+                          : ColoresApp.textoPrimario,
+                    ),
                     decoration: InputDecoration(
                       hintText: provider.mensajesRestantes <= 0
                           ? 'Límite diario alcanzado'
                           : 'Pregunta sobre himnos...',
                       hintStyle: TextStyle(
-                        color: widget.esModoOscuro
-                            ? ColoresApp.textoBlancoSecundario
-                            : ColoresApp.textoSecundario,
-                        fontSize: 15,
-                      ),
+                          color: widget.esModoOscuro
+                              ? ColoresApp.textoBlancoSecundario
+                              : ColoresApp.textoSecundario,
+                          fontSize: 15),
                       border: InputBorder.none,
                       enabledBorder: InputBorder.none,
                       focusedBorder: InputBorder.none,
                       contentPadding: const EdgeInsets.symmetric(
                           horizontal: 18, vertical: 12),
                     ),
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: widget.esModoOscuro
-                          ? ColoresApp.textoBlanco
-                          : ColoresApp.textoPrimario,
-                    ),
                   ),
                 ),
               ),
               const SizedBox(width: 8),
               AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                width: 46,
-                height: 46,
+                duration: const Duration(milliseconds: 180),
+                width: 44,
+                height: 44,
                 decoration: BoxDecoration(
                   color: (!bloqueado && _tieneTexto)
                       ? (widget.esModoOscuro
                           ? ColoresApp.primarioClaro
                           : ColoresApp.primario)
                       : (widget.esModoOscuro
-                          ? const Color(0xFF424242)
+                          ? const Color(0xFF333333)
                           : const Color(0xFFE0E0E0)),
                   shape: BoxShape.circle,
                 ),
                 child: Material(
                   color: Colors.transparent,
                   child: InkWell(
-                    borderRadius: BorderRadius.circular(23),
+                    borderRadius: BorderRadius.circular(22),
                     onTap: (!bloqueado && _tieneTexto) ? _enviar : null,
                     child: provider.estaActivo
                         ? Center(
                             child: SizedBox(
-                              width: 20,
-                              height: 20,
+                              width: 18,
+                              height: 18,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
                                 color: widget.esModoOscuro
@@ -146,12 +136,12 @@ class _BarraEntradaChatState extends State<BarraEntradaChat> {
                           )
                         : Icon(
                             Icons.send_rounded,
+                            size: 19,
                             color: (!bloqueado && _tieneTexto)
                                 ? Colors.white
                                 : (widget.esModoOscuro
                                     ? ColoresApp.textoBlancoSecundario
                                     : ColoresApp.textoSecundario),
-                            size: 20,
                           ),
                   ),
                 ),

@@ -1,171 +1,121 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uuid/uuid.dart';
+import '../modelos/modelos_chat.dart';
 
-/// Modelo de un mensaje de chat
-class MensajeChat {
-  final String rol; // 'user' o 'assistant'
-  final String contenido;
-  final DateTime timestamp;
-  final bool esStreaming;
+export '../modelos/modelos_chat.dart';
 
-  MensajeChat({
-    required this.rol,
-    required this.contenido,
-    required this.timestamp,
-    this.esStreaming = false,
-  });
+import 'fetch_client_web.dart'
+    if (dart.library.io) '_http_client_stub.dart' as platform_client;
 
-  Map<String, dynamic> toJson() => {
-        'role': rol,
-        'content': contenido,
-        'timestamp': timestamp.toIso8601String(),
-      };
-
-  factory MensajeChat.fromJson(Map<String, dynamic> json) => MensajeChat(
-        rol: json['role'],
-        contenido: json['content'],
-        timestamp: DateTime.parse(json['timestamp']),
-      );
-}
-
-/// Eventos SSE del agente
 enum TipoEventoSSE { metadata, toolStart, toolEnd, token, done, error }
 
 class EventoSSE {
   final TipoEventoSSE tipo;
   final dynamic datos;
-
   EventoSSE({required this.tipo, required this.datos});
 }
 
-/// Servicio principal para comunicarse con el Agente Eclesiástico
 class ServicioAgenteApi {
   static const String _baseUrl =
       'https://agente-eclesi-stico-production.up.railway.app';
-  // NOTA: En producción, mueve esto a variables de entorno o flutter_dotenv
   static const String _apiKey = 'HHVOu0xoGF7yphcvj2hZ0CHdf7FpbuFyBzoWgfwitNGd7IzX';
 
-  static const String _claveThreadId = 'user_thread_id';
   static const String _claveMensajesDiarios = 'daily_message_count';
   static const String _claveUltimoReset = 'last_reset_date';
-  static const String _claveHistorialLocal = 'local_chat_history';
   static const int _limiteDiario = 20;
-  static const int _maxHistorialLocal = 50;
   static const int _maxReintentos = 2;
   static const Duration _esperaReintento = Duration(seconds: 3);
 
-  String? _threadId;
+  // ─── Límite diario ────────────────────────────────────────────────────────
 
-  /// Inicializa o recupera el thread_id único del dispositivo
-  Future<String> obtenerThreadId() async {
-    if (_threadId != null) return _threadId!;
-
-    final prefs = await SharedPreferences.getInstance();
-    String? id = prefs.getString(_claveThreadId);
-
-    if (id == null) {
-      id = const Uuid().v4();
-      await prefs.setString(_claveThreadId, id);
-    }
-
-    _threadId = id;
-    return id;
-  }
-
-  /// Verifica y actualiza el límite diario de mensajes
-  /// Retorna [mensajesRestantes] o -1 si se superó el límite
   Future<int> verificarLimiteDiario() async {
     final prefs = await SharedPreferences.getInstance();
     final hoy = _fechaHoy();
-    final ultimoReset = prefs.getString(_claveUltimoReset) ?? '';
-
-    if (ultimoReset != hoy) {
+    if (prefs.getString(_claveUltimoReset) != hoy) {
       await prefs.setInt(_claveMensajesDiarios, 0);
       await prefs.setString(_claveUltimoReset, hoy);
     }
-
-    final conteo = prefs.getInt(_claveMensajesDiarios) ?? 0;
-    return _limiteDiario - conteo;
+    return _limiteDiario - (prefs.getInt(_claveMensajesDiarios) ?? 0);
   }
 
-  /// Incrementa el contador diario de mensajes
   Future<void> incrementarContadorDiario() async {
     final prefs = await SharedPreferences.getInstance();
-    final conteo = prefs.getInt(_claveMensajesDiarios) ?? 0;
-    await prefs.setInt(_claveMensajesDiarios, conteo + 1);
+    await prefs.setInt(_claveMensajesDiarios,
+        (prefs.getInt(_claveMensajesDiarios) ?? 0) + 1);
   }
 
-  /// Envía un mensaje al agente con streaming SSE
-  /// Retorna un Stream de EventoSSE
-  Stream<EventoSSE> enviarMensaje(String mensaje) async* {
-    final threadId = await obtenerThreadId();
+  // ─── Streaming SSE ────────────────────────────────────────────────────────
 
+  Stream<EventoSSE> enviarMensaje(String mensaje, String threadId) async* {
     for (int intento = 0; intento <= _maxReintentos; intento++) {
+      // Usar FetchClient en web, http.Client en nativo
+      final client = platform_client.crearCliente();
       try {
         final request = http.Request(
           'POST',
           Uri.parse('$_baseUrl/api/v1/chat/stream'),
         );
-
         request.headers.addAll({
           'X-API-Key': _apiKey,
           'Content-Type': 'application/json',
           'Accept': 'text/event-stream',
+          'Cache-Control': 'no-cache',
         });
-
         request.body = jsonEncode({
           'message': mensaje,
           'thread_id': threadId,
         });
 
-        final client = http.Client();
-        final response = await client.send(request).timeout(
-          const Duration(seconds: 60),
-        );
+        final response = await client.send(request);
 
         if (response.statusCode != 200) {
-          throw Exception('Error HTTP ${response.statusCode}');
+          throw Exception('HTTP ${response.statusCode}');
         }
 
-        // Leer el stream SSE línea por línea
-        final buffer = StringBuffer();
-        await for (final chunk in response.stream
-            .transform(utf8.decoder)
-            .transform(const LineSplitter())) {
-          final linea = chunk.trim();
+        // Buffer para manejar líneas que llegan partidas entre chunks
+        final lineBuffer = StringBuffer();
 
-          if (linea.startsWith('data: ')) {
-            final jsonStr = linea.substring(6);
-            if (jsonStr.isNotEmpty) {
-              try {
-                final json = jsonDecode(jsonStr) as Map<String, dynamic>;
-                final evento = _parsearEvento(json);
-                if (evento != null) {
-                  yield evento;
-                  if (evento.tipo == TipoEventoSSE.done ||
-                      evento.tipo == TipoEventoSSE.error) {
-                    client.close();
-                    return;
-                  }
-                }
-              } catch (_) {
-                // Ignorar líneas mal formadas
+        await for (final chunk in response.stream.transform(utf8.decoder)) {
+          lineBuffer.write(chunk);
+          final contenido = lineBuffer.toString();
+          lineBuffer.clear();
+
+          final lineas = contenido.split('\n');
+
+          // Procesar todas las líneas completas
+          for (int i = 0; i < lineas.length - 1; i++) {
+            final evento = _procesarLinea(lineas[i].trim());
+            if (evento != null) {
+              yield evento;
+              if (evento.tipo == TipoEventoSSE.done ||
+                  evento.tipo == TipoEventoSSE.error) {
+                client.close();
+                return;
               }
             }
           }
+
+          // Guardar fragmento incompleto para el próximo chunk
+          if (lineas.last.isNotEmpty) {
+            lineBuffer.write(lineas.last);
+          }
+        }
+
+        // Procesar cualquier remanente
+        final resto = lineBuffer.toString().trim();
+        if (resto.isNotEmpty) {
+          final evento = _procesarLinea(resto);
+          if (evento != null) yield evento;
         }
 
         client.close();
-        return; // Éxito, salir del loop de reintentos
+        return;
       } catch (e) {
+        client.close();
         if (intento < _maxReintentos) {
-          yield EventoSSE(
-            tipo: TipoEventoSSE.token,
-            datos: '', // No mostrar nada, solo esperar
-          );
           await Future.delayed(_esperaReintento);
         } else {
           yield EventoSSE(
@@ -177,10 +127,47 @@ class ServicioAgenteApi {
     }
   }
 
-  EventoSSE? _parsearEvento(Map<String, dynamic> json) {
+  // ─── Historial servidor (fallback) ────────────────────────────────────────
+
+  Future<List<ChatMessage>> obtenerHistorialServidor(String threadId) async {
+    try {
+      final response = await http
+          .get(
+            Uri.parse('$_baseUrl/api/v1/chat/$threadId/history'),
+            headers: {'X-API-Key': _apiKey},
+          )
+          .timeout(const Duration(seconds: 15));
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body);
+        return (json['messages'] as List)
+            .map((m) => ChatMessage(
+                  role: m['role'],
+                  content: m['content'],
+                  timestamp: DateTime.now(),
+                ))
+            .toList();
+      }
+    } catch (_) {}
+    return [];
+  }
+
+  // ─── Helpers ─────────────────────────────────────────────────────────────
+
+  EventoSSE? _procesarLinea(String linea) {
+    if (!linea.startsWith('data: ')) return null;
+    final jsonStr = linea.substring(6).trim();
+    if (jsonStr.isEmpty) return null;
+    try {
+      final json = jsonDecode(jsonStr) as Map<String, dynamic>;
+      return _parsear(json);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  EventoSSE? _parsear(Map<String, dynamic> json) {
     final tipo = json['type'] as String?;
     final datos = json['data'];
-
     switch (tipo) {
       case 'metadata':
         return EventoSSE(tipo: TipoEventoSSE.metadata, datos: datos);
@@ -189,7 +176,8 @@ class ServicioAgenteApi {
       case 'tool_end':
         return EventoSSE(tipo: TipoEventoSSE.toolEnd, datos: datos);
       case 'token':
-        return EventoSSE(tipo: TipoEventoSSE.token, datos: datos as String? ?? '');
+        return EventoSSE(
+            tipo: TipoEventoSSE.token, datos: datos as String? ?? '');
       case 'done':
         return EventoSSE(tipo: TipoEventoSSE.done, datos: datos);
       case 'error':
@@ -199,59 +187,9 @@ class ServicioAgenteApi {
     }
   }
 
-  // ─── Historial local ───────────────────────────────────────────────────────
-
-  /// Carga el historial local guardado en SharedPreferences
-  Future<List<MensajeChat>> cargarHistorialLocal() async {
-    final prefs = await SharedPreferences.getInstance();
-    final jsonStr = prefs.getString(_claveHistorialLocal);
-    if (jsonStr == null) return [];
-
-    try {
-      final lista = jsonDecode(jsonStr) as List;
-      return lista.map((e) => MensajeChat.fromJson(e)).toList();
-    } catch (_) {
-      return [];
-    }
-  }
-
-  /// Guarda el historial local (máximo 50 mensajes, FIFO)
-  Future<void> guardarHistorialLocal(List<MensajeChat> mensajes) async {
-    final prefs = await SharedPreferences.getInstance();
-    var lista = mensajes;
-    if (lista.length > _maxHistorialLocal) {
-      lista = lista.sublist(lista.length - _maxHistorialLocal);
-    }
-    final jsonStr = jsonEncode(lista.map((m) => m.toJson()).toList());
-    await prefs.setString(_claveHistorialLocal, jsonStr);
-  }
-
-  /// Obtiene historial del servidor (fallback)
-  Future<List<MensajeChat>> obtenerHistorialServidor() async {
-    final threadId = await obtenerThreadId();
-    try {
-      final response = await http.get(
-        Uri.parse('$_baseUrl/api/v1/chat/$threadId/history'),
-        headers: {'X-API-Key': _apiKey},
-      ).timeout(const Duration(seconds: 15));
-
-      if (response.statusCode == 200) {
-        final json = jsonDecode(response.body);
-        final mensajes = (json['messages'] as List)
-            .map((m) => MensajeChat(
-                  rol: m['role'],
-                  contenido: m['content'],
-                  timestamp: DateTime.now(),
-                ))
-            .toList();
-        return mensajes;
-      }
-    } catch (_) {}
-    return [];
-  }
-
   String _fechaHoy() {
-    final now = DateTime.now();
-    return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    final n = DateTime.now();
+    return '${n.year}-${n.month.toString().padLeft(2, '0')}-'
+        '${n.day.toString().padLeft(2, '0')}';
   }
 }

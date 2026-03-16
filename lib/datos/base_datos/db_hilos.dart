@@ -1,168 +1,171 @@
-import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart' as p;
+import 'dart:convert';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:shared_preferences/shared_preferences.dart';
 import '../modelos/modelos_chat.dart';
 
-/// Capa de acceso a SQLite para hilos y mensajes
+// Importaciones condicionales para sqflite (solo nativo)
+import 'db_nativo.dart' if (dart.library.html) 'db_stub.dart'
+    as db_impl;
+
+/// Capa de acceso a datos — usa SQLite en nativo y SharedPreferences en web
 class DbHilos {
-  static const int _version = 1;
-  static const String _dbName = 'agente_hilos.db';
   static const int _maxHilos = 30;
-
-  static Database? _db;
-
-  Future<Database> get db async {
-    _db ??= await _inicializar();
-    return _db!;
-  }
-
-  Future<Database> _inicializar() async {
-    final ruta = p.join(await getDatabasesPath(), _dbName);
-    return openDatabase(
-      ruta,
-      version: _version,
-      onCreate: (db, _) async {
-        await db.execute('''
-          CREATE TABLE threads (
-            thread_id   TEXT PRIMARY KEY,
-            title       TEXT NOT NULL,
-            created_at  INTEGER NOT NULL,
-            last_message_at INTEGER NOT NULL,
-            is_pinned   INTEGER NOT NULL DEFAULT 0
-          )
-        ''');
-        await db.execute('''
-          CREATE TABLE messages (
-            id          INTEGER PRIMARY KEY AUTOINCREMENT,
-            thread_id   TEXT NOT NULL,
-            role        TEXT NOT NULL,
-            content     TEXT NOT NULL,
-            timestamp   INTEGER NOT NULL,
-            FOREIGN KEY (thread_id) REFERENCES threads(thread_id)
-              ON DELETE CASCADE
-          )
-        ''');
-        await db.execute(
-            'CREATE INDEX idx_messages_thread ON messages(thread_id)');
-      },
-    );
-  }
 
   // ─── Hilos ────────────────────────────────────────────────────────────────
 
-  /// Lista todos los hilos ordenados: pinned primero, luego por fecha desc
   Future<List<ConversationThread>> listarHilos() async {
-    final database = await db;
-    final rows = await database.query(
-      'threads',
-      orderBy: 'is_pinned DESC, last_message_at DESC',
-    );
-    return rows.map(ConversationThread.fromMap).toList();
+    if (kIsWeb) return _webListarHilos();
+    return db_impl.listarHilos();
   }
 
-  /// Inserta un hilo nuevo
   Future<void> insertarHilo(ConversationThread hilo) async {
-    final database = await db;
-    await database.insert(
-      'threads',
-      hilo.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-    await _limpiarHilosAntiguos(database);
+    if (kIsWeb) {
+      await _webInsertarHilo(hilo);
+    } else {
+      await db_impl.insertarHilo(hilo);
+    }
   }
 
-  /// Actualiza title, lastMessageAt e isPinned de un hilo
   Future<void> actualizarHilo(ConversationThread hilo) async {
-    final database = await db;
-    await database.update(
-      'threads',
-      {
-        'title': hilo.title,
-        'last_message_at': hilo.lastMessageAt.millisecondsSinceEpoch,
-        'is_pinned': hilo.isPinned ? 1 : 0,
-      },
-      where: 'thread_id = ?',
-      whereArgs: [hilo.threadId],
-    );
+    if (kIsWeb) {
+      await _webActualizarHilo(hilo);
+    } else {
+      await db_impl.actualizarHilo(hilo);
+    }
   }
 
-  /// Elimina un hilo y sus mensajes (ON DELETE CASCADE)
   Future<void> eliminarHilo(String threadId) async {
-    final database = await db;
-    await database.delete(
-      'threads',
-      where: 'thread_id = ?',
-      whereArgs: [threadId],
-    );
-  }
-
-  /// Limita a _maxHilos eliminando los más antiguos no pinneados
-  Future<void> _limpiarHilosAntiguos(Database database) async {
-    final total = Sqflite.firstIntValue(
-      await database.rawQuery('SELECT COUNT(*) FROM threads'),
-    )!;
-    if (total <= _maxHilos) return;
-
-    final sobran = total - _maxHilos;
-    await database.rawDelete('''
-      DELETE FROM threads
-      WHERE thread_id IN (
-        SELECT thread_id FROM threads
-        WHERE is_pinned = 0
-        ORDER BY last_message_at ASC
-        LIMIT $sobran
-      )
-    ''');
+    if (kIsWeb) {
+      await _webEliminarHilo(threadId);
+    } else {
+      await db_impl.eliminarHilo(threadId);
+    }
   }
 
   // ─── Mensajes ─────────────────────────────────────────────────────────────
 
-  /// Carga todos los mensajes de un hilo (lazy)
   Future<List<ChatMessage>> cargarMensajes(String threadId) async {
-    final database = await db;
-    final rows = await database.query(
-      'messages',
-      where: 'thread_id = ?',
-      whereArgs: [threadId],
-      orderBy: 'timestamp ASC',
-    );
-    return rows.map(ChatMessage.fromMap).toList();
+    if (kIsWeb) return _webCargarMensajes(threadId);
+    return db_impl.cargarMensajes(threadId);
   }
 
-  /// Inserta un mensaje
   Future<void> insertarMensaje(
       String threadId, ChatMessage mensaje) async {
-    final database = await db;
-    await database.insert('messages', {
-      ...mensaje.toMap(),
-      'thread_id': threadId,
-    });
+    if (kIsWeb) {
+      await _webInsertarMensaje(threadId, mensaje);
+    } else {
+      await db_impl.insertarMensaje(threadId, mensaje);
+    }
   }
 
-  /// Reemplaza todos los mensajes de un hilo (para sync con servidor)
   Future<void> reemplazarMensajes(
       String threadId, List<ChatMessage> mensajes) async {
-    final database = await db;
-    await database.transaction((txn) async {
-      await txn.delete('messages',
-          where: 'thread_id = ?', whereArgs: [threadId]);
-      for (final m in mensajes) {
-        await txn.insert('messages', {
-          ...m.toMap(),
-          'thread_id': threadId,
-        });
-      }
-    });
+    if (kIsWeb) {
+      await _webReemplazarMensajes(threadId, mensajes);
+    } else {
+      await db_impl.reemplazarMensajes(threadId, mensajes);
+    }
   }
 
-  /// Cuántos mensajes tiene un hilo (sin cargarlos)
   Future<int> contarMensajes(String threadId) async {
-    final database = await db;
-    return Sqflite.firstIntValue(
-          await database.rawQuery(
-            'SELECT COUNT(*) FROM messages WHERE thread_id = ?',
-            [threadId],
-          ),
-        ) ??
-        0;
+    if (kIsWeb) return _webContarMensajes(threadId);
+    return db_impl.contarMensajes(threadId);
+  }
+
+  // ─── Implementación Web (SharedPreferences) ───────────────────────────────
+
+  static const String _claveHilos = 'hilos_v2_list';
+  static const String _prefMensajes = 'hilos_msgs_';
+
+  Future<List<ConversationThread>> _webListarHilos() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_claveHilos);
+    if (raw == null) return [];
+    try {
+      final lista = jsonDecode(raw) as List;
+      final hilos = lista
+          .map((e) => ConversationThread.fromMap(e as Map<String, dynamic>))
+          .toList();
+      hilos.sort((a, b) {
+        if (a.isPinned != b.isPinned) return a.isPinned ? -1 : 1;
+        return b.lastMessageAt.compareTo(a.lastMessageAt);
+      });
+      return hilos;
+    } catch (_) {
+      return [];
+    }
+  }
+
+  Future<void> _webGuardarListaHilos(
+      List<ConversationThread> hilos) async {
+    final prefs = await SharedPreferences.getInstance();
+    final json = jsonEncode(hilos.map((h) => h.toMap()).toList());
+    await prefs.setString(_claveHilos, json);
+  }
+
+  Future<void> _webInsertarHilo(ConversationThread hilo) async {
+    var hilos = await _webListarHilos();
+    hilos.removeWhere((h) => h.threadId == hilo.threadId);
+    hilos.insert(0, hilo);
+    // Límite de 30 hilos — eliminar el más antiguo no pinneado
+    if (hilos.length > _maxHilos) {
+      final idx = hilos.lastIndexWhere((h) => !h.isPinned);
+      if (idx >= 0) hilos.removeAt(idx);
+    }
+    await _webGuardarListaHilos(hilos);
+  }
+
+  Future<void> _webActualizarHilo(ConversationThread hilo) async {
+    final hilos = await _webListarHilos();
+    final idx = hilos.indexWhere((h) => h.threadId == hilo.threadId);
+    if (idx >= 0) hilos[idx] = hilo;
+    await _webGuardarListaHilos(hilos);
+  }
+
+  Future<void> _webEliminarHilo(String threadId) async {
+    final hilos = await _webListarHilos();
+    hilos.removeWhere((h) => h.threadId == threadId);
+    await _webGuardarListaHilos(hilos);
+    // Borrar mensajes del hilo
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('$_prefMensajes$threadId');
+  }
+
+  Future<List<ChatMessage>> _webCargarMensajes(String threadId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString('$_prefMensajes$threadId');
+    if (raw == null) return [];
+    try {
+      final lista = jsonDecode(raw) as List;
+      return lista
+          .map((e) => ChatMessage.fromMap(e as Map<String, dynamic>))
+          .toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  Future<void> _webInsertarMensaje(
+      String threadId, ChatMessage mensaje) async {
+    final msgs = await _webCargarMensajes(threadId);
+    msgs.add(mensaje);
+    await _webGuardarMensajes(threadId, msgs);
+  }
+
+  Future<void> _webReemplazarMensajes(
+      String threadId, List<ChatMessage> mensajes) async {
+    await _webGuardarMensajes(threadId, mensajes);
+  }
+
+  Future<int> _webContarMensajes(String threadId) async {
+    final msgs = await _webCargarMensajes(threadId);
+    return msgs.length;
+  }
+
+  Future<void> _webGuardarMensajes(
+      String threadId, List<ChatMessage> msgs) async {
+    final prefs = await SharedPreferences.getInstance();
+    final json = jsonEncode(msgs.map((m) => m.toMap()).toList());
+    await prefs.setString('$_prefMensajes$threadId', json);
   }
 }
