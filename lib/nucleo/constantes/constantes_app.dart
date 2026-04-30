@@ -68,14 +68,20 @@ class ConstantesApp {
   static const String nombreApp = 'Himnario Universal';
   static const String versionApp = '1.0.0';
   static const String fechaActualizacion = 'Enero 2026';
-  static const String descripcionApp = 
+  static const String descripcionApp =
       'Himnario Universal es una aplicación móvil diseñada para llevar la alabanza '
       'y adoración a donde quiera que vayas, esta app te permite acceder fácilmente a las letras, escuchar '
       'los audios disponibles y organizar tus himnos favoritos.';
   static const String propostoApp =
       'El propósito de esta aplicación es solo ser una herramienta de apoyo, '
-      'pedimos encarecidamente que no sea utilizada como sustituto del himnario fisico de la iglesia universal.';
+      'pedimos encarecidamente que no sea utilizada como sustituto del himnario físico de la Iglesia Universal.';
   static const String telefonoContacto = '+52 734 155 3474';
+
+  // URLs legales
+  static const String urlTerminosCondiciones =
+      'https://icuajp-segundazona.github.io/Terms-and-conditions/';
+  static const String urlPoliticaPrivacidad =
+      'https://icuajp-segundazona.github.io/Terms-and-conditions/privacy-policy';
 
   // Versículo del carrusel
   static const String versiculoTexto =

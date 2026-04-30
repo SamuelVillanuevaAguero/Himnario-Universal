@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../configuracion/temas/colores_app.dart';
 import '../../../nucleo/constantes/constantes_app.dart';
 
@@ -25,7 +26,7 @@ class _PantallaTerminosCondicionesState
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: esModoOscuro 
+      backgroundColor: esModoOscuro
           ? ColoresApp.fondoOscuro.withOpacity(0.95)
           : Colors.black.withOpacity(0.5),
       body: Center(
@@ -33,9 +34,7 @@ class _PantallaTerminosCondicionesState
           width: size.width * 0.85,
           constraints: const BoxConstraints(maxWidth: 400),
           decoration: BoxDecoration(
-            color: esModoOscuro 
-                ? ColoresApp.fondoTarjeta 
-                : Colors.white,
+            color: esModoOscuro ? ColoresApp.fondoTarjeta : Colors.white,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
@@ -58,7 +57,6 @@ class _PantallaTerminosCondicionesState
     );
   }
 
-
   Widget _construirEncabezado(bool esModoOscuro) {
     return Padding(
       padding: const EdgeInsets.only(top: 40, bottom: 20),
@@ -69,8 +67,8 @@ class _PantallaTerminosCondicionesState
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: (esModoOscuro 
-                      ? ColoresApp.primarioClaro 
+              color: (esModoOscuro
+                      ? ColoresApp.primarioClaro
                       : ColoresApp.primario)
                   .withOpacity(0.15),
               borderRadius: BorderRadius.circular(20),
@@ -84,8 +82,6 @@ class _PantallaTerminosCondicionesState
             ),
           ),
           const SizedBox(height: 24),
-          
-          // Título
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Text(
@@ -106,7 +102,6 @@ class _PantallaTerminosCondicionesState
     );
   }
 
-
   Widget _construirContenido(bool esModoOscuro) {
     return Container(
       constraints: const BoxConstraints(maxHeight: 400),
@@ -115,7 +110,6 @@ class _PantallaTerminosCondicionesState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Texto introductorio
             RichText(
               textAlign: TextAlign.center,
               text: TextSpan(
@@ -144,27 +138,28 @@ class _PantallaTerminosCondicionesState
             ),
             const SizedBox(height: 24),
 
-            // Puntos importantes
             _construirPunto(
               esModoOscuro: esModoOscuro,
               texto: 'Esta aplicación es únicamente una herramienta de apoyo '
                   'y NO sustituye el himnario físico oficial de la Iglesia Universal.',
             ),
             const SizedBox(height: 16),
-            
+
             _construirPunto(
               esModoOscuro: esModoOscuro,
               texto: 'El uso de esta aplicación debe complementar, no reemplazar, '
                   'la participación activa en los servicios religiosos.',
             ),
             const SizedBox(height: 16),
-            
+
+            // ── Punto 4 corregido ──
             _construirPunto(
               esModoOscuro: esModoOscuro,
-              texto: 'El contenido de himnos, letras y audios pertenece a la Iglesia Universal. '
+              texto: 'Las letras e himnos son obras de dominio público. '
+                  'Las grabaciones de audio son producción original del equipo de desarrollo.',
             ),
             const SizedBox(height: 16),
-            
+
             _construirPunto(
               esModoOscuro: esModoOscuro,
               texto: 'Esta aplicación no recopila ni comparte información personal. '
@@ -172,7 +167,7 @@ class _PantallaTerminosCondicionesState
             ),
             const SizedBox(height: 24),
 
-            // Nota final
+            // ── Nota final con enlaces a T&C y Privacidad ──
             Center(
               child: RichText(
                 textAlign: TextAlign.center,
@@ -185,11 +180,9 @@ class _PantallaTerminosCondicionesState
                     height: 1.4,
                   ),
                   children: [
-                    const TextSpan(
-                      text: 'Al seleccionar "Aceptar", aceptas las nuevas ',
-                    ),
+                    const TextSpan(text: 'Al seleccionar "Aceptar", aceptas los '),
                     TextSpan(
-                      text: 'Condiciones',
+                      text: 'Términos y Condiciones',
                       style: TextStyle(
                         color: esModoOscuro
                             ? ColoresApp.primarioClaro
@@ -197,12 +190,28 @@ class _PantallaTerminosCondicionesState
                         decoration: TextDecoration.underline,
                       ),
                       recognizer: TapGestureRecognizer()
-                        ..onTap = () => _mostrarTerminosCompletos(context),
+                        ..onTap = () => _abrirUrl(
+                              context,
+                              ConstantesApp.urlTerminosCondiciones,
+                            ),
+                    ),
+                    const TextSpan(text: ' y la '),
+                    TextSpan(
+                      text: 'Política de Privacidad',
+                      style: TextStyle(
+                        color: esModoOscuro
+                            ? ColoresApp.primarioClaro
+                            : ColoresApp.primario,
+                        decoration: TextDecoration.underline,
+                      ),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () => _abrirUrl(
+                              context,
+                              ConstantesApp.urlPoliticaPrivacidad,
+                            ),
                     ),
                     const TextSpan(
-                      text: '. Para obtener más información sobre cómo tratamos tus datos, '
-                          'puedes contactarnos al ',
-                    ),
+                        text: '. Para más información contáctanos al '),
                     TextSpan(
                       text: ConstantesApp.telefonoContacto,
                       style: TextStyle(
@@ -219,6 +228,32 @@ class _PantallaTerminosCondicionesState
             ),
             const SizedBox(height: 24),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _construirBotonAceptar(bool esModoOscuro) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
+      child: SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          onPressed: widget.alAceptar,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: esModoOscuro
+                ? ColoresApp.primarioClaro
+                : ColoresApp.primario,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          child: const Text(
+            'Aceptar',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          ),
         ),
       ),
     );
@@ -259,145 +294,24 @@ class _PantallaTerminosCondicionesState
     );
   }
 
-  void _mostrarTerminosCompletos(BuildContext context) {
-    final esModoOscuro = Theme.of(context).brightness == Brightness.dark;
-    
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: esModoOscuro 
-            ? ColoresApp.fondoTarjeta 
-            : Colors.white,
-        title: Text(
-          'Términos y Condiciones Completos',
-          style: TextStyle(
-            color: esModoOscuro
-                ? ColoresApp.textoBlanco
-                : ColoresApp.textoPrimario,
-          ),
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _construirSeccionTerminos(
-                esModoOscuro: esModoOscuro,
-                titulo: '1. Propósito de la Aplicación',
-                contenido: ConstantesApp.propostoApp,
-              ),
-              const SizedBox(height: 16),
-              _construirSeccionTerminos(
-                esModoOscuro: esModoOscuro,
-                titulo: '2. Herramienta de Apoyo',
-                contenido: 'Esta aplicación está diseñada únicamente como una herramienta '
-                    'digital de apoyo para facilitar el acceso a los himnos. No pretende, '
-                    'bajo ninguna circunstancia, sustituir el himnario físico oficial de la '
-                    'Iglesia Universal.',
-              ),
-              const SizedBox(height: 16),
-              _construirSeccionTerminos(
-                esModoOscuro: esModoOscuro,
-                titulo: '3. Uso Responsable',
-                contenido: 'El usuario se compromete a utilizar esta aplicación de manera '
-                    'responsable y respetando las normas de la iglesia. La aplicación es un '
-                    'complemento y no reemplaza la participación activa en los servicios religiosos.',
-              ),
-              const SizedBox(height: 16),
-              _construirSeccionTerminos(
-                esModoOscuro: esModoOscuro,
-                titulo: '4. Contenido',
-                contenido: 'Todo el contenido de himnos, letras y audios pertenece a la '
-                    'Iglesia Universal.',
-              ),
-              const SizedBox(height: 16),
-              _construirSeccionTerminos(
-                esModoOscuro: esModoOscuro,
-                titulo: '5. Privacidad',
-                contenido: 'Esta aplicación no recopila, almacena ni comparte información '
-                    'personal. Los datos de favoritos se guardan únicamente en el dispositivo local.',
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(
-              'Cerrar',
-              style: TextStyle(
-                color: esModoOscuro
-                    ? ColoresApp.primarioClaro
-                    : ColoresApp.primario,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _construirSeccionTerminos({
-    required bool esModoOscuro,
-    required String titulo,
-    required String contenido,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          titulo,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: esModoOscuro
-                ? ColoresApp.textoBlanco
-                : ColoresApp.textoPrimario,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          contenido,
-          style: TextStyle(
-            fontSize: 13,
-            color: esModoOscuro
-                ? ColoresApp.textoBlancoSecundario
-                : ColoresApp.textoSecundario,
-            height: 1.5,
-          ),
-        ),
-      ],
-    );
-  }
-
-
-  Widget _construirBotonAceptar(bool esModoOscuro) {
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: SizedBox(
-        width: double.infinity,
-        height: 50,
-        child: ElevatedButton(
-          onPressed: widget.alAceptar,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: esModoOscuro
-                ? ColoresApp.primarioClaro
-                : ColoresApp.primario,
-            foregroundColor: Colors.white,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          child: const Text(
-            'Aceptar',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      ),
-    );
+  Future<void> _abrirUrl(BuildContext context, String url) async {
+    final uri = Uri.parse(url);
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No se pudo abrir el enlace')),
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    }
   }
 }

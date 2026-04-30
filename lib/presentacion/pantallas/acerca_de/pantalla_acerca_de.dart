@@ -12,8 +12,8 @@ class PantallaAcercaDe extends StatelessWidget {
     final esModoOscuro = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: esModoOscuro 
-          ? ColoresApp.fondoOscuro 
+      backgroundColor: esModoOscuro
+          ? ColoresApp.fondoOscuro
           : ColoresApp.fondoPrimario,
       body: SafeArea(
         child: SingleChildScrollView(
@@ -36,8 +36,8 @@ class PantallaAcercaDe extends StatelessWidget {
         children: [
           Icon(
             Icons.info_outline,
-            color: esModoOscuro 
-                ? ColoresApp.primarioClaro 
+            color: esModoOscuro
+                ? ColoresApp.primarioClaro
                 : ColoresApp.primario,
             size: 28,
           ),
@@ -46,8 +46,8 @@ class PantallaAcercaDe extends StatelessWidget {
             ConstantesApp.tituloAcercaDe,
             style: TextStyle(
               fontSize: 24,
-              color: esModoOscuro 
-                  ? ColoresApp.textoBlanco 
+              color: esModoOscuro
+                  ? ColoresApp.textoBlanco
                   : ColoresApp.textoPrimario,
               fontWeight: FontWeight.w600,
             ),
@@ -69,6 +69,9 @@ class PantallaAcercaDe extends StatelessWidget {
           const SizedBox(height: 20),
           _construirTarjetaContacto(context, esModoOscuro),
           const SizedBox(height: 20),
+          // ── Tarjeta legal nueva ──
+          _construirTarjetaLegal(context, esModoOscuro),
+          const SizedBox(height: 20),
           _construirTarjetaVersion(esModoOscuro),
           const SizedBox(height: 40),
         ],
@@ -81,14 +84,12 @@ class PantallaAcercaDe extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(30),
       decoration: BoxDecoration(
-        color: esModoOscuro 
-            ? ColoresApp.superficieOscura 
+        color: esModoOscuro
+            ? ColoresApp.superficieOscura
             : ColoresApp.fondoSecundario,
         borderRadius: BorderRadius.circular(15),
         border: Border.all(
-          color: esModoOscuro 
-              ? ColoresApp.bordeOscuro 
-              : ColoresApp.borde,
+          color: esModoOscuro ? ColoresApp.bordeOscuro : ColoresApp.borde,
         ),
       ),
       child: Column(
@@ -96,8 +97,8 @@ class PantallaAcercaDe extends StatelessWidget {
           Icon(
             Icons.menu_book_rounded,
             size: 80,
-            color: esModoOscuro 
-                ? ColoresApp.primarioClaro 
+            color: esModoOscuro
+                ? ColoresApp.primarioClaro
                 : ColoresApp.primario,
           ),
           const SizedBox(height: 15),
@@ -106,8 +107,8 @@ class PantallaAcercaDe extends StatelessWidget {
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: esModoOscuro 
-                  ? ColoresApp.textoBlanco 
+              color: esModoOscuro
+                  ? ColoresApp.textoBlanco
                   : ColoresApp.textoPrimario,
             ),
             textAlign: TextAlign.center,
@@ -122,14 +123,12 @@ class PantallaAcercaDe extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: esModoOscuro 
-            ? ColoresApp.fondoTarjeta 
+        color: esModoOscuro
+            ? ColoresApp.fondoTarjeta
             : ColoresApp.fondoSecundario,
         borderRadius: BorderRadius.circular(15),
         border: Border.all(
-          color: esModoOscuro 
-              ? ColoresApp.bordeOscuro 
-              : ColoresApp.borde,
+          color: esModoOscuro ? ColoresApp.bordeOscuro : ColoresApp.borde,
         ),
       ),
       child: Column(
@@ -139,8 +138,8 @@ class PantallaAcercaDe extends StatelessWidget {
             children: [
               Icon(
                 Icons.description_outlined,
-                color: esModoOscuro 
-                    ? ColoresApp.primarioClaro 
+                color: esModoOscuro
+                    ? ColoresApp.primarioClaro
                     : ColoresApp.primario,
                 size: 24,
               ),
@@ -150,8 +149,8 @@ class PantallaAcercaDe extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: esModoOscuro 
-                      ? ColoresApp.textoBlanco 
+                  color: esModoOscuro
+                      ? ColoresApp.textoBlanco
                       : ColoresApp.textoPrimario,
                 ),
               ),
@@ -163,8 +162,8 @@ class PantallaAcercaDe extends StatelessWidget {
             style: TextStyle(
               fontSize: 16,
               height: 1.6,
-              color: esModoOscuro 
-                  ? ColoresApp.textoBlancoSecundario 
+              color: esModoOscuro
+                  ? ColoresApp.textoBlancoSecundario
                   : ColoresApp.textoSecundario,
             ),
             textAlign: TextAlign.justify,
@@ -175,8 +174,8 @@ class PantallaAcercaDe extends StatelessWidget {
             style: TextStyle(
               fontSize: 16,
               height: 1.6,
-              color: esModoOscuro 
-                  ? ColoresApp.textoBlancoSecundario 
+              color: esModoOscuro
+                  ? ColoresApp.textoBlancoSecundario
                   : ColoresApp.textoSecundario,
             ),
             textAlign: TextAlign.justify,
@@ -191,14 +190,12 @@ class PantallaAcercaDe extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: esModoOscuro 
-            ? ColoresApp.fondoTarjeta 
+        color: esModoOscuro
+            ? ColoresApp.fondoTarjeta
             : ColoresApp.fondoSecundario,
         borderRadius: BorderRadius.circular(15),
         border: Border.all(
-          color: esModoOscuro 
-              ? ColoresApp.bordeOscuro 
-              : ColoresApp.borde,
+          color: esModoOscuro ? ColoresApp.bordeOscuro : ColoresApp.borde,
         ),
       ),
       child: Column(
@@ -208,8 +205,8 @@ class PantallaAcercaDe extends StatelessWidget {
             children: [
               Icon(
                 Icons.contact_phone_outlined,
-                color: esModoOscuro 
-                    ? ColoresApp.primarioClaro 
+                color: esModoOscuro
+                    ? ColoresApp.primarioClaro
                     : ColoresApp.primario,
                 size: 24,
               ),
@@ -219,8 +216,8 @@ class PantallaAcercaDe extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: esModoOscuro 
-                      ? ColoresApp.textoBlanco 
+                  color: esModoOscuro
+                      ? ColoresApp.textoBlanco
                       : ColoresApp.textoPrimario,
                 ),
               ),
@@ -231,8 +228,8 @@ class PantallaAcercaDe extends StatelessWidget {
             'Para más información, sugerencias o reportar algún problema, puede contactarnos a través de:',
             style: TextStyle(
               fontSize: 14,
-              color: esModoOscuro 
-                  ? ColoresApp.textoBlancoSecundario 
+              color: esModoOscuro
+                  ? ColoresApp.textoBlancoSecundario
                   : ColoresApp.textoSecundario,
             ),
           ),
@@ -243,14 +240,14 @@ class PantallaAcercaDe extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(15),
               decoration: BoxDecoration(
-                color: (esModoOscuro 
-                        ? ColoresApp.primarioClaro 
+                color: (esModoOscuro
+                        ? ColoresApp.primarioClaro
                         : ColoresApp.primario)
                     .withOpacity(0.1),
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                  color: esModoOscuro 
-                      ? ColoresApp.primarioClaro 
+                  color: esModoOscuro
+                      ? ColoresApp.primarioClaro
                       : ColoresApp.primario,
                   width: 1.5,
                 ),
@@ -258,9 +255,9 @@ class PantallaAcercaDe extends StatelessWidget {
               child: Row(
                 children: [
                   Icon(
-                    Icons.phone,
-                    color: esModoOscuro 
-                        ? ColoresApp.primarioClaro 
+                    Icons.phone_outlined,
+                    color: esModoOscuro
+                        ? ColoresApp.primarioClaro
                         : ColoresApp.primario,
                     size: 24,
                   ),
@@ -272,8 +269,8 @@ class PantallaAcercaDe extends StatelessWidget {
                         'Teléfono',
                         style: TextStyle(
                           fontSize: 12,
-                          color: esModoOscuro 
-                              ? ColoresApp.textoBlancoSecundario 
+                          color: esModoOscuro
+                              ? ColoresApp.textoBlancoSecundario
                               : ColoresApp.textoSecundario,
                         ),
                       ),
@@ -283,8 +280,8 @@ class PantallaAcercaDe extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
-                          color: esModoOscuro 
-                              ? ColoresApp.primarioClaro 
+                          color: esModoOscuro
+                              ? ColoresApp.primarioClaro
                               : ColoresApp.primario,
                         ),
                       ),
@@ -293,8 +290,8 @@ class PantallaAcercaDe extends StatelessWidget {
                   const Spacer(),
                   Icon(
                     Icons.arrow_forward_ios,
-                    color: esModoOscuro 
-                        ? ColoresApp.primarioClaro 
+                    color: esModoOscuro
+                        ? ColoresApp.primarioClaro
                         : ColoresApp.primario,
                     size: 18,
                   ),
@@ -331,8 +328,8 @@ class PantallaAcercaDe extends StatelessWidget {
                         'WhatsApp',
                         style: TextStyle(
                           fontSize: 12,
-                          color: esModoOscuro 
-                              ? ColoresApp.textoBlancoSecundario 
+                          color: esModoOscuro
+                              ? ColoresApp.textoBlancoSecundario
                               : ColoresApp.textoSecundario,
                         ),
                       ),
@@ -362,19 +359,158 @@ class PantallaAcercaDe extends StatelessWidget {
     );
   }
 
+  // ── Tarjeta de documentos legales (nueva) ─────────────────────────────────
+
+  Widget _construirTarjetaLegal(BuildContext context, bool esModoOscuro) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: esModoOscuro
+            ? ColoresApp.fondoTarjeta
+            : ColoresApp.fondoSecundario,
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(
+          color: esModoOscuro ? ColoresApp.bordeOscuro : ColoresApp.borde,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.gavel_outlined,
+                color: esModoOscuro
+                    ? ColoresApp.primarioClaro
+                    : ColoresApp.primario,
+                size: 24,
+              ),
+              const SizedBox(width: 10),
+              Text(
+                'Documentos Legales',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: esModoOscuro
+                      ? ColoresApp.textoBlanco
+                      : ColoresApp.textoPrimario,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 15),
+          _construirBotonLegal(
+            context: context,
+            esModoOscuro: esModoOscuro,
+            icono: Icons.article_outlined,
+            titulo: 'Términos y Condiciones',
+            subtitulo: 'Condiciones de uso de la aplicación',
+            url: ConstantesApp.urlTerminosCondiciones,
+          ),
+          const SizedBox(height: 10),
+          _construirBotonLegal(
+            context: context,
+            esModoOscuro: esModoOscuro,
+            icono: Icons.privacy_tip_outlined,
+            titulo: 'Política de Privacidad',
+            subtitulo: 'Cómo tratamos tus datos',
+            url: ConstantesApp.urlPoliticaPrivacidad,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _construirBotonLegal({
+    required BuildContext context,
+    required bool esModoOscuro,
+    required IconData icono,
+    required String titulo,
+    required String subtitulo,
+    required String url,
+  }) {
+    return InkWell(
+      onTap: () => _abrirUrl(context, url),
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        padding: const EdgeInsets.all(15),
+        decoration: BoxDecoration(
+          color: (esModoOscuro
+                  ? ColoresApp.primarioClaro
+                  : ColoresApp.primario)
+              .withOpacity(0.07),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: (esModoOscuro
+                    ? ColoresApp.primarioClaro
+                    : ColoresApp.primario)
+                .withOpacity(0.3),
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              icono,
+              color: esModoOscuro
+                  ? ColoresApp.primarioClaro
+                  : ColoresApp.primario,
+              size: 22,
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    titulo,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: esModoOscuro
+                          ? ColoresApp.textoBlanco
+                          : ColoresApp.textoPrimario,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitulo,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: esModoOscuro
+                          ? ColoresApp.textoBlancoSecundario
+                          : ColoresApp.textoSecundario,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.open_in_new,
+              color: esModoOscuro
+                  ? ColoresApp.primarioClaro
+                  : ColoresApp.primario,
+              size: 18,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Tarjeta de versión (sin cambios) ──────────────────────────────────────
+
   Widget _construirTarjetaVersion(bool esModoOscuro) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: esModoOscuro 
-            ? ColoresApp.fondoTarjeta 
+        color: esModoOscuro
+            ? ColoresApp.fondoTarjeta
             : ColoresApp.fondoSecundario,
         borderRadius: BorderRadius.circular(15),
         border: Border.all(
-          color: esModoOscuro 
-              ? ColoresApp.bordeOscuro 
-              : ColoresApp.borde,
+          color: esModoOscuro ? ColoresApp.bordeOscuro : ColoresApp.borde,
         ),
       ),
       child: Column(
@@ -387,9 +523,7 @@ class PantallaAcercaDe extends StatelessWidget {
           ),
           const SizedBox(height: 15),
           Divider(
-            color: esModoOscuro 
-                ? ColoresApp.bordeOscuro 
-                : ColoresApp.divisor,
+            color: esModoOscuro ? ColoresApp.bordeOscuro : ColoresApp.divisor,
           ),
           const SizedBox(height: 15),
           _construirItemVersion(
@@ -413,8 +547,8 @@ class PantallaAcercaDe extends StatelessWidget {
       children: [
         Icon(
           icono,
-          color: esModoOscuro 
-              ? ColoresApp.textoBlancoSecundario 
+          color: esModoOscuro
+              ? ColoresApp.textoBlancoSecundario
               : ColoresApp.textoSecundario,
           size: 20,
         ),
@@ -423,8 +557,8 @@ class PantallaAcercaDe extends StatelessWidget {
           titulo,
           style: TextStyle(
             fontSize: 14,
-            color: esModoOscuro 
-                ? ColoresApp.textoBlancoSecundario 
+            color: esModoOscuro
+                ? ColoresApp.textoBlancoSecundario
                 : ColoresApp.textoSecundario,
           ),
         ),
@@ -434,8 +568,8 @@ class PantallaAcercaDe extends StatelessWidget {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: esModoOscuro 
-                ? ColoresApp.textoBlanco 
+            color: esModoOscuro
+                ? ColoresApp.textoBlanco
                 : ColoresApp.textoPrimario,
           ),
         ),
@@ -443,12 +577,10 @@ class PantallaAcercaDe extends StatelessWidget {
     );
   }
 
-  Future<void> _llamarTelefono(BuildContext context) async {
-    final Uri telUri = Uri(
-      scheme: 'tel',
-      path: ConstantesApp.telefonoContacto,
-    );
+  // ── Helpers ───────────────────────────────────────────────────────────────
 
+  Future<void> _llamarTelefono(BuildContext context) async {
+    final Uri telUri = Uri(scheme: 'tel', path: ConstantesApp.telefonoContacto);
     try {
       if (await canLaunchUrl(telUri)) {
         await launchUrl(telUri);
@@ -465,24 +597,41 @@ class PantallaAcercaDe extends StatelessWidget {
   }
 
   Future<void> _enviarWhatsApp(BuildContext context) async {
-    final String telefono = ConstantesApp.telefonoContacto.replaceAll(RegExp(r'[^\d+]'), '');
-    final String mensaje = Uri.encodeComponent('Hola, me comunico desde ${ConstantesApp.nombreApp}');
-    final Uri whatsappUri = Uri.parse('https://wa.me/$telefono?text=$mensaje');
-
+    final String telefono =
+        ConstantesApp.telefonoContacto.replaceAll(RegExp(r'[^\d+]'), '');
+    final String mensaje = Uri.encodeComponent(
+        'Hola, me comunico desde ${ConstantesApp.nombreApp}');
+    final Uri whatsappUri =
+        Uri.parse('https://wa.me/$telefono?text=$mensaje');
     try {
       if (await canLaunchUrl(whatsappUri)) {
-        await launchUrl(
-          whatsappUri,
-          mode: LaunchMode.externalApplication,
-        );
+        await launchUrl(whatsappUri, mode: LaunchMode.externalApplication);
       } else {
         if (context.mounted) {
-          _mostrarError(context, 'No se puede abrir WhatsApp. Asegúrate de tenerlo instalado.');
+          _mostrarError(context,
+              'No se puede abrir WhatsApp. Asegúrate de tenerlo instalado.');
         }
       }
     } catch (e) {
       if (context.mounted) {
         _mostrarError(context, 'Error al abrir WhatsApp: $e');
+      }
+    }
+  }
+
+  Future<void> _abrirUrl(BuildContext context, String url) async {
+    final uri = Uri.parse(url);
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        if (context.mounted) {
+          _mostrarError(context, 'No se pudo abrir el enlace');
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        _mostrarError(context, 'Error: $e');
       }
     }
   }
