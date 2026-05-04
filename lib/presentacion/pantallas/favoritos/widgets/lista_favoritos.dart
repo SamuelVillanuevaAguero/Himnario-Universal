@@ -9,7 +9,7 @@ import '/../../../datos/modelos/resultado_busqueda.dart';
 
 /// Widget que muestra la lista de himnos favoritos
 class ListaFavoritos extends StatelessWidget {
-  const ListaFavoritos({Key? key}) : super(key: key);
+  const ListaFavoritos({super.key});
 
   @override
   Widget build(BuildContext context) {

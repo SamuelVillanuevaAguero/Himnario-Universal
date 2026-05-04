@@ -7,10 +7,10 @@ class IndicadorCarga extends StatelessWidget {
   final bool esModoOscuro;
 
   const IndicadorCarga({
-    Key? key,
+    super.key,
     this.mensaje,
     this.esModoOscuro = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

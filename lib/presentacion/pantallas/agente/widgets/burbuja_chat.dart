@@ -10,10 +10,10 @@ class BurbujaChat extends StatelessWidget {
   final bool esModoOscuro;
 
   const BurbujaChat({
-    Key? key,
+    super.key,
     required this.mensaje,
     required this.esModoOscuro,
-  }) : super(key: key);
+  });
 
   bool get esUsuario => mensaje.role == 'user';
 

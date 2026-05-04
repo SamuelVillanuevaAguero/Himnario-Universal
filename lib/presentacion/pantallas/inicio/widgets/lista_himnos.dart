@@ -9,7 +9,7 @@ import '/../../../presentacion/widgets_comunes/tarjeta_himno.dart';
 
 /// Widget que muestra la lista de himnos con búsqueda
 class ListaHimnos extends StatelessWidget {
-  const ListaHimnos({Key? key}) : super(key: key);
+  const ListaHimnos({super.key});
 
   @override
   Widget build(BuildContext context) {

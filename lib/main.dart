@@ -33,7 +33,7 @@ void main() {
 
 /// Aplicación principal del Himnario Universal
 class AplicacionHimnario extends StatelessWidget {
-  const AplicacionHimnario({Key? key}) : super(key: key);
+  const AplicacionHimnario({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -98,7 +98,7 @@ class AplicacionHimnario extends StatelessWidget {
 
 /// Pantalla inicial que verifica si se han aceptado los términos
 class PantallaInicial extends StatefulWidget {
-  const PantallaInicial({Key? key}) : super(key: key);
+  const PantallaInicial({super.key});
 
   @override
   State<PantallaInicial> createState() => _PantallaInicialState();

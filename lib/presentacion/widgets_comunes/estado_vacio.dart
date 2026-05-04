@@ -11,14 +11,14 @@ class EstadoVacio extends StatelessWidget {
   final bool esModoOscuro;
 
   const EstadoVacio({
-    Key? key,
+    super.key,
     required this.icono,
     required this.titulo,
     this.subtitulo,
     this.mensajeInformativo,
     this.accionPersonalizada,
     this.esModoOscuro = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

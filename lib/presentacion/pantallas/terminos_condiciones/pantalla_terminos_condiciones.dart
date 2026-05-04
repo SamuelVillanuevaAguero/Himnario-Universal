@@ -9,9 +9,9 @@ class PantallaTerminosCondiciones extends StatefulWidget {
   final VoidCallback alAceptar;
 
   const PantallaTerminosCondiciones({
-    Key? key,
+    super.key,
     required this.alAceptar,
-  }) : super(key: key);
+  });
 
   @override
   State<PantallaTerminosCondiciones> createState() =>

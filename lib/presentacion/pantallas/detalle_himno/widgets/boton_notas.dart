@@ -8,10 +8,10 @@ class BotonNotas extends StatefulWidget {
   final bool esModoOscuro;
 
   const BotonNotas({
-    Key? key,
+    super.key,
     required this.numeroHimno,
     required this.esModoOscuro,
-  }) : super(key: key);
+  });
 
   @override
   State<BotonNotas> createState() => _BotonNotasState();

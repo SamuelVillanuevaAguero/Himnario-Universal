@@ -66,7 +66,7 @@ class ConversationThread {
     final ultimoEspacio = recortado.lastIndexOf(' ');
     return ultimoEspacio > 0
         ? '${recortado.substring(0, ultimoEspacio)}...'
-        : '${recortado}...';
+        : '$recortado...';
   }
 
   ConversationThread copyWith({

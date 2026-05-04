@@ -8,7 +8,7 @@ import 'widgets/barra_entrada_chat.dart';
 import 'widgets/drawer_hilos.dart';
 
 class PantallaAgente extends StatefulWidget {
-  const PantallaAgente({Key? key}) : super(key: key);
+  const PantallaAgente({super.key});
 
   @override
   State<PantallaAgente> createState() => _PantallaAgenteState();

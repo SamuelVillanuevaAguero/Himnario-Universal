@@ -11,9 +11,9 @@ class PantallaDetalleHimno extends StatefulWidget {
   final Himno himno;
 
   const PantallaDetalleHimno({
-    Key? key,
+    super.key,
     required this.himno,
-  }) : super(key: key);
+  });
 
   @override
   State<PantallaDetalleHimno> createState() => _PantallaDetalleHimnoState();

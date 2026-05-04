@@ -9,10 +9,10 @@ class TarjetaCategoria extends StatelessWidget {
   final bool esModoOscuro;
 
   const TarjetaCategoria({
-    Key? key,
+    super.key,
     required this.categoria,
     required this.esModoOscuro,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

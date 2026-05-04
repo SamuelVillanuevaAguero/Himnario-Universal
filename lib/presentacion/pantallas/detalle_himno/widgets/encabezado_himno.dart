@@ -12,10 +12,10 @@ class EncabezadoHimno extends StatelessWidget {
   final bool esModoOscuro;
 
   const EncabezadoHimno({
-    Key? key,
+    super.key,
     required this.himno,
     required this.esModoOscuro,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

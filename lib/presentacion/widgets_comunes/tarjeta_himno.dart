@@ -13,11 +13,11 @@ class TarjetaHimno extends StatelessWidget {
   final bool mostrarCoincidencia;
 
   const TarjetaHimno({
-    Key? key,
+    super.key,
     required this.resultado,
     required this.esModoOscuro,
     this.mostrarCoincidencia = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -5,8 +5,7 @@ import '../../../../configuracion/temas/colores_app.dart';
 class IndicadorEscribiendo extends StatefulWidget {
   final bool esModoOscuro;
 
-  const IndicadorEscribiendo({Key? key, required this.esModoOscuro})
-      : super(key: key);
+  const IndicadorEscribiendo({super.key, required this.esModoOscuro});
 
   @override
   State<IndicadorEscribiendo> createState() => _IndicadorEscribiendoState();

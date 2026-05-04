@@ -9,11 +9,11 @@ class LetraHimno extends StatelessWidget {
   final bool esModoOscuro;
 
   const LetraHimno({
-    Key? key,
+    super.key,
     required this.himno,
     required this.tamanioFuente,
     required this.esModoOscuro,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

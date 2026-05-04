@@ -6,7 +6,7 @@ import '/../../../presentacion/providers/provider_himnos.dart';
 
 /// Widget de barra de búsqueda para filtrar himnos
 class BarraBusqueda extends StatefulWidget {
-  const BarraBusqueda({Key? key}) : super(key: key);
+  const BarraBusqueda({super.key});
 
   @override
   State<BarraBusqueda> createState() => _BarraBusquedaState();

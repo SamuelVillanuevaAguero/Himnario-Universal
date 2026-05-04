@@ -8,8 +8,7 @@ class BarraEntradaChat extends StatefulWidget {
   final Future<void> Function(String) onEnviar;
 
   const BarraEntradaChat(
-      {Key? key, required this.esModoOscuro, required this.onEnviar})
-      : super(key: key);
+      {super.key, required this.esModoOscuro, required this.onEnviar});
 
   @override
   State<BarraEntradaChat> createState() => _BarraEntradaChatState();

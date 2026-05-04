@@ -6,7 +6,7 @@ import '/../../../presentacion/providers/provider_categorias.dart';
 
 /// Widget de barra de búsqueda para filtrar categorías
 class BarraBusquedaCategorias extends StatefulWidget {
-  const BarraBusquedaCategorias({Key? key}) : super(key: key);
+  const BarraBusquedaCategorias({super.key});
 
   @override
   State<BarraBusquedaCategorias> createState() =>

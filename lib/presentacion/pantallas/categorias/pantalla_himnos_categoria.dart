@@ -16,9 +16,9 @@ class PantallaHimnosCategoria extends StatefulWidget {
   final Categoria categoria;
 
   const PantallaHimnosCategoria({
-    Key? key,
+    super.key,
     required this.categoria,
-  }) : super(key: key);
+  });
 
   @override
   State<PantallaHimnosCategoria> createState() =>

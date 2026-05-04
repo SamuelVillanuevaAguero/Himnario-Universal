@@ -8,7 +8,7 @@ import 'widgets/lista_categorias.dart';
 
 /// Pantalla que muestra las categorías de himnos disponibles
 class PantallaCategorias extends StatefulWidget {
-  const PantallaCategorias({Key? key}) : super(key: key);
+  const PantallaCategorias({super.key});
 
   @override
   State<PantallaCategorias> createState() => _PantallaCategoriasState();

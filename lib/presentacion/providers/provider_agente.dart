@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
-import '../../datos/modelos/modelos_chat.dart';
 import '../../datos/base_datos/db_hilos.dart';
 import '../../datos/servicios/servicio_agente_api.dart';
 

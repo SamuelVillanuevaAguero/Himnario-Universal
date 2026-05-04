@@ -5,7 +5,7 @@ import '/../../nucleo/constantes/constantes_app.dart';
 
 /// Pantalla que muestra información acerca de la aplicación
 class PantallaAcercaDe extends StatelessWidget {
-  const PantallaAcercaDe({Key? key}) : super(key: key);
+  const PantallaAcercaDe({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -8,7 +8,7 @@ import 'tarjeta_categoria.dart';
 
 /// Widget que muestra la lista de categorías
 class ListaCategorias extends StatelessWidget {
-  const ListaCategorias({Key? key}) : super(key: key);
+  const ListaCategorias({super.key});
 
   @override
   Widget build(BuildContext context) {

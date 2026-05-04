@@ -7,7 +7,7 @@ import '../../../providers/provider_agente.dart';
 
 /// Drawer lateral con lista de hilos de conversación
 class DrawerHilos extends StatelessWidget {
-  const DrawerHilos({Key? key}) : super(key: key);
+  const DrawerHilos({super.key});
 
   @override
   Widget build(BuildContext context) {

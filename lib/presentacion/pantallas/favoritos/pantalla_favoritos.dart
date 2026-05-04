@@ -7,7 +7,7 @@ import 'widgets/lista_favoritos.dart';
 
 /// Pantalla que muestra los himnos marcados como favoritos
 class PantallaFavoritos extends StatelessWidget {
-  const PantallaFavoritos({Key? key}) : super(key: key);
+  const PantallaFavoritos({super.key});
 
   @override
   Widget build(BuildContext context) {

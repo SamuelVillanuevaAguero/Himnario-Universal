@@ -9,7 +9,7 @@ import 'widgets/lista_himnos.dart';
 
 /// Pantalla principal de inicio con lista de himnos
 class PantallaInicio extends StatefulWidget {
-  const PantallaInicio({Key? key}) : super(key: key);
+  const PantallaInicio({super.key});
 
   @override
   State<PantallaInicio> createState() => _PantallaInicioState();

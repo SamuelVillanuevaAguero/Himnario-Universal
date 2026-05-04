@@ -9,12 +9,12 @@ class ControlesTamanioFuente extends StatelessWidget {
   final bool esModoOscuro;
 
   const ControlesTamanioFuente({
-    Key? key,
+    super.key,
     required this.tamanioActual,
     required this.alAumentar,
     required this.alDisminuir,
     required this.esModoOscuro,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

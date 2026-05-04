@@ -8,7 +8,7 @@ import '../../pantallas/agente/pantalla_agente.dart';
 
 /// Pantalla principal con navegación inferior entre secciones
 class NavegacionPrincipal extends StatefulWidget {
-  const NavegacionPrincipal({Key? key}) : super(key: key);
+  const NavegacionPrincipal({super.key});
 
   @override
   State<NavegacionPrincipal> createState() => _NavegacionPrincipalState();

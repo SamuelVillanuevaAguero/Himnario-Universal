@@ -7,7 +7,7 @@ import '/../../../nucleo/constantes/constantes_app.dart';
 
 /// Widget de carrusel de imágenes con versículo bíblico
 class CarruselImagenes extends StatefulWidget {
-  const CarruselImagenes({Key? key}) : super(key: key);
+  const CarruselImagenes({super.key});
 
   @override
   State<CarruselImagenes> createState() => _CarruselImagenesState();
